@@ -1,0 +1,17 @@
+yabai -m config layout bsp
+
+# For future reference
+# Number of spaces: abai -m query --spaces | jq -r '[.[].display] | unique | length'
+
+# Set all padding and gaps to 20pt (default: 0)
+yabai -m config top_padding    20
+yabai -m config bottom_padding 20
+yabai -m config left_padding   20
+yabai -m config right_padding  20
+yabai -m config window_gap     20
+
+yabai -m rule --add app="^System Preferences$" manage=off
+yabai -m rule --add app="^zoom\\.us$" space=2
+yabai -m rule --add app="^Slack$" space=2
+yabai -m rule --add app="^1Password 7$" manage=off
+
