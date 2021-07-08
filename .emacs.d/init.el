@@ -29,6 +29,7 @@
 	modus-themes-headings '((t . section))
 	modus-themes-scale-headings t
 	modus-themes-variable-pitch-headings t
+	modus-themes-paren-match 'intense
 	)
   
   (modus-themes-load-themes)
@@ -71,7 +72,8 @@
 
   :bind (:map org-roam-mode-map
 	      (("C-c n l" . org-roam)
-	       ("C-c n f" . org-roam-find-file)))
+	       ("C-c n f" . org-roam-find-file)
+	       ("C-c n i" . org-roam-insert)))
   :custom
   (org-roam-directory "~/roam")
   (org-roam-tag-sources '(prop vanilla all-directories))
@@ -158,13 +160,28 @@
   (setq notmuch-archive-tags '("-inbox")
 	notmuch-search-oldest-first nil))
 
+(use-package rainbow-delimiters
+  :ensure
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package paren
+  :config
+  (show-paren-mode 1))
+
+(use-package consult
+  :bind (("C-x b" . consult-buffer)))
+
+(use-package embark
+  :ensure t
+  :bind (("C-." . embark-act)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
+   '(consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
  '(safe-local-variable-values
    '((eval progn
 	   (setq-local org-roam-directory
