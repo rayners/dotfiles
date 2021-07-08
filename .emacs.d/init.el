@@ -109,7 +109,13 @@
 	 (org-capture-after-finalize . org-gcal-fetch))
   )
 
+(use-package mini-frame
+  :ensure
+  :init
+  (mini-frame-mode +1))
+
 (use-package selectrum
+  :after mini-frame
   :ensure
   :init
   (selectrum-mode +1))
@@ -158,7 +164,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
+   '(mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
  '(safe-local-variable-values
    '((eval progn
 	   (setq-local org-roam-directory
