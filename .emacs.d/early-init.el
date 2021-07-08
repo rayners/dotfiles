@@ -1,0 +1,12 @@
+ (setq package-enabled-at-startup t)
+
+(setq frame-inhibit-implied-resize t)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(setq inhibit-splash-screen t)
+(setq use-dialog-box t)
+(setq use-file-dialog nil)
+(setq inhibit-startup-echo-area-message "rayners")
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-buffer-menu t)
