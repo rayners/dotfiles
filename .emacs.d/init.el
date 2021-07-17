@@ -54,12 +54,23 @@
 				      ((agenda #1="")
 				       (alltodo #1#)))
 				     (" " "My agenda"
-				      ((agenda "" ((org-agenda-span 1)))
-				       (tags-todo "work|snapdocs"
-						  ((org-agenda-overriding-header "\nWork Stuff\n"))
+				      ((agenda ""
+					       ((org-agenda-span 1)
+						(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done 'deadline 'scheduled)))
+					       )
+				       (agenda nil
+					       ((org-agenda-entry-types '(:scheduled :deadline))
+						(org-agenda-format-date "")
+						(org-deadline-warning-days 7)
+						(org-agenda-show-all-dates nil)
+						(org-agenda-overriding-header "Dates")
+						))
+				       (tags-todo "work"
+						  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
+						   (org-agenda-overriding-header "Work Stuff"))
 						  )
-				       (tags-todo "-work-snapdocs"
-						  ((org-agenda-overriding-header "\nOther Tasks\n"))
+				       (tags-todo "-work"
+						  ((org-agenda-overriding-header "Other Tasks"))
 						  )
 				       )))
 	)
@@ -169,6 +180,7 @@
   (show-paren-mode 1))
 
 (use-package consult
+  :ensure
   :bind (("C-x b" . consult-buffer)))
 
 (use-package embark
