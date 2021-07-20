@@ -42,6 +42,9 @@
   :ensure
   :bind (("C-c a" . org-agenda)
 	 ("C-c c" . org-capture))
+  :hook ((org-mode . auto-fill-mode)
+	 (org-capture-mode . rayners/org-capture-setup)
+	 (org-capture-after-finalize . rayners/org-capture-cleanup))
   :init
   (setq org-agenda-files '("~/org/" "~/org/org")
 	org-default-notes-file "~/org/inbox.org"
@@ -62,6 +65,7 @@
 					       ((org-agenda-entry-types '(:scheduled :deadline))
 						(org-agenda-format-date "")
 						(org-deadline-warning-days 7)
+						(org-agenda-use-time-grid nil)
 						(org-agenda-show-all-dates nil)
 						(org-agenda-overriding-header "Dates")
 						))
@@ -74,35 +78,78 @@
 						  )
 				       )))
 	)
+  :config
+  (defun rayners/org-capture-cleanup ()
+    (-when-let ((&alist 'name name) (frame-parameters))
+      (when (equal name "org-protocol-capture")
+	(delete-frame))))
+  (defun rayners/org-capture-setup ()
+    (-when-let ((&alist 'name name) (frame-parameters))
+      (when (equal name "org-protocol-capture")
+	(progn
+	  (delete-other-windows)
+	  (raise-frame)))))
   )
 
 (use-package org-roam
   :ensure
   ;; split roam files from org files
-  :hook (after-init . org-roam-mode)
+  ; :hook (after-init . org-roam-mode)
 
-  :bind (:map org-roam-mode-map
-	      (("C-c n l" . org-roam)
-	       ("C-c n f" . org-roam-find-file)
-	       ("C-c n i" . org-roam-insert)))
-  :custom
-  (org-roam-directory "~/roam")
-  (org-roam-tag-sources '(prop vanilla all-directories))
-  (org-roam-capture-templates '(("d" "default" plain (function org-roam-capture--get-point)
-				 "%?"
-				 :file-name "${slug}"
-				 :head "#+title: ${title}\n\n"
-				 :unnarrowed t)
-				("w" "work" plain (function org-roam-capture--get-point)
-				 "%?"
-				 :file-name "work/${slug}"
-				 :head "#+title: ${title}\n\n"
-				 :unnarrowed t)
-				("p" "personal" plain (function org-roam-capture--get-point)
-				 "%?"
-				 :file-name "personal/${slug}"
-				 :head "#+title: ${title}\n\n"
-				 :unnarrowed t)))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+	 ("C-c n c" . org-roam-capture)
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n i" . org-roam-node-insert)
+	 ("C-c n t" . org-roam-dailies-capture-today)
+	 )
+  :config
+  (org-roam-setup)
+  (cl-defmethod org-roam-node-directories ((node org-roam-node))
+    (if-let ((dirs (file-name-directory (file-relative-name (org-roam-node-file node) org-roam-directory))))
+	(format "(%s)" (string-join (f-split dirs) "/"))
+      ""))
+  :init
+  (add-to-list 'display-buffer-alist
+	       '("\\*org-roam\\*"
+		 (display-buffer-in-direction)
+		 (direction . right)
+		 (window-width . 0.33)
+		 (window-height . fit-window-to-buffer)))
+  (setq org-roam-directory "~/roam"
+	org-roam-capture-templates '(("d" "default/local" plain "%?"
+				      :if-new (file+head "${slug}.org"
+							 "#+title: ${title}\n")
+				      :unnarrowed t)
+				     ("s" "shared" plain "%?"
+				      :if-new (file+head "shared/${slug}.org"
+							 "#+title: ${title}\n")
+				      :unnarrowed t))
+	org-roam-node-display-template "${directories:10} ${title:*} ${tags:10}"
+	;; org-roam-dailies-directory "daily/" ;; default... for now
+	;; org-roam-dailies-capture-templates '(("d" "default/local" entry "* %<%H:%M>\n\n%?"
+	;; 				      :if-new (file+datetree "%<%Y-%b>.org" day))
+	;; 				     ("s" "shared" entry "* %<%H:%M>\n\n%?"
+	;; 				      :if-new (file+datetree "../shared/daily/%<%Y-%b>.org" day))
+	;; 				     )
+	;; org-roam-dailies-capture-templates '(("d" "daily" entry "* %?"
+	;; 				      :if-new (file+datetree "%<%Y-%b>.org" week)))
+	)
+  ;; (n-roam-tag-sources '(prop vanilla all-directories))
+  ;; (org-roam-capture-templates '(("d" "default/local" plain (function org-roam-capture--get-point)
+  ;; 				 "%?"
+  ;; 				 :file-name "${slug}"
+  ;; 				 :head "#+title: ${title}\n\n"
+  ;; 				 :unnarrowed t)
+  ;; 				("w" "work" plain (function org-roam-capture--get-point)
+  ;; 				 "%?"
+  ;; 				 :file-name "work/${slug}"
+  ;; 				 :head "#+title: ${title}\n\n"
+  ;; 				 :unnarrowed t)
+  ;; 				("i" "icloud" plain (function org-roam-capture--get-point)
+  ;; 				 "%?"
+  ;; 				 :file-name "icloud/${slug}"
+  ;; 				 :head "#+title: ${title}\n\n"
+  ;; 				 :unnarrowed t)))
   )
 
 (use-package org-gcal
@@ -181,7 +228,14 @@
 
 (use-package consult
   :ensure
-  :bind (("C-x b" . consult-buffer)))
+  :bind (("C-x b" . consult-buffer)
+	 ("M-s l" . consult-line)
+	 ("M-s e" . consult-isearch)
+	 :map isearch-mode-map
+	 ("M-e" . consult-isearch)
+	 ("M-s e" . consult-isearch)
+	 ("M-s l" . consult-line)
+	 ))
 
 (use-package embark
   :ensure t
