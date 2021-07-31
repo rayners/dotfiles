@@ -2,7 +2,7 @@ background_opacity: 0.8
 cursor:
   style:
     shape: underline
-    blinking: on
+    blinking: Always
 window:
   decorations: none
 font:
