@@ -43,8 +43,9 @@
   :bind (("C-c a" . org-agenda)
 	 ("C-c c" . org-capture))
   :hook ((org-mode . auto-fill-mode)
-	 (org-capture-mode . rayners/org-capture-setup)
-	 (org-capture-after-finalize . rayners/org-capture-cleanup))
+	 ;; (org-capture-mode . rayners/org-capture-setup)
+	 ;; (org-capture-after-finalize . rayners/org-capture-cleanup))
+	 )
   :init
   (setq org-agenda-files '("~/org/" "~/org/org")
 	org-default-notes-file "~/org/inbox.org"
@@ -79,22 +80,26 @@
 				       )))
 	)
   :config
-  (defun rayners/org-capture-cleanup ()
-    (-when-let ((&alist 'name name) (frame-parameters))
-      (when (equal name "org-protocol-capture")
-	(delete-frame))))
-  (defun rayners/org-capture-setup ()
-    (-when-let ((&alist 'name name) (frame-parameters))
-      (when (equal name "org-protocol-capture")
-	(progn
-	  (delete-other-windows)
-	  (raise-frame)))))
+  (defadvice org-capture (before make-full-window-frame activate)
+    (if (equal "emacs-capture" (frame-parameter nil 'name))
+	(delete-other-windows)))
+  (defadvice org-capture-finalize (after delete-capture-frame activate)
+    (if (equal "emacs-capture" (frame-parameter nil 'name))
+	(delete-frame)))
+  ;; (defun rayners/org-capture-cleanup ()
+  ;;   (-when-let ((&alist 'name name) (frame-parameters))
+  ;;     (when (equal name "org-protocol-capture")
+  ;; 	(delete-frame))))
+  ;; (defun rayners/org-capture-setup ()
+  ;;   (-when-let ((&alist 'name name) (frame-parameters))
+  ;;     (when (equal name "org-protocol-capture")
+  ;; 	(progn
+  ;; 	  (delete-other-windows)
+  ;; 	  (raise-frame)))))
   )
 
 (use-package org-roam
-  :ensure
-  ;; split roam files from org files
-  ; :hook (after-init . org-roam-mode)
+  :ensure t
 
   :bind (("C-c n l" . org-roam-buffer-toggle)
 	 ("C-c n c" . org-roam-capture)
@@ -104,6 +109,7 @@
 	 )
   :config
   (org-roam-setup)
+  (require 'org-roam-protocol)
   (cl-defmethod org-roam-node-directories ((node org-roam-node))
     (if-let ((dirs (file-name-directory (file-relative-name (org-roam-node-file node) org-roam-directory))))
 	(format "(%s)" (string-join (f-split dirs) "/"))
@@ -125,6 +131,10 @@
 							 "#+title: ${title}\n")
 				      :unnarrowed t))
 	org-roam-node-display-template "${directories:10} ${title:*} ${tags:10}"
+	org-roam-capture-ref-templates '(("r" "ref" plain "%?"
+					  :if-new (file+head "${slug}.org"
+							     "#+title: ${title}\n")
+					  :unnarrowed t))
 	;; org-roam-dailies-directory "daily/" ;; default... for now
 	;; org-roam-dailies-capture-templates '(("d" "default/local" entry "* %<%H:%M>\n\n%?"
 	;; 				      :if-new (file+datetree "%<%Y-%b>.org" day))
@@ -241,13 +251,49 @@
   :ensure t
   :bind (("C-." . embark-act)))
 
+(use-package yaml-mode
+  :ensure t)
+
+(use-package tramp
+  :ensure t)
+
+(use-package magit
+  :ensure
+  :after tramp
+  :bind (("C-x C-z" . magit-status)
+	 ("C-x C-Z" . rayners/yadm-magit-status))
+  :init
+  (require 'tramp)
+  (add-to-list 'tramp-methods
+	       '("yadm"
+		 (tramp-login-program "/usr/local/bin/yadm")
+		 (tramp-login-args (("enter")))
+		 (tramp-login-env (("SHELL") ("/bin/sh")))
+		 (tramp-remote-shell "/bin/zsh")
+		 (tramp-remote-shell-args ("-c"))))
+  (defun rayners/yadm-magit-status ()
+    (interactive)
+    (magit-status "/yadm::"))
+  )
+
+(use-package groovy-mode
+  :when (rayners/work-machine-p)
+  :ensure
+  :mode "Jenkinsfile\\'")
+
+(use-package server
+  :if window-system
+  :config
+  (unless (server-running-p)
+    (server-start)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
+   '(groovy-mode tramp magit yaml-mode consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
  '(safe-local-variable-values
    '((eval progn
 	   (setq-local org-roam-directory
