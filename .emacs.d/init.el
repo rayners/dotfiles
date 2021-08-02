@@ -43,6 +43,7 @@
   :bind (("C-c a" . org-agenda)
 	 ("C-c c" . org-capture))
   :hook ((org-mode . auto-fill-mode)
+	 (org-capture-after-finalize . rayners/org-capture-cleanup-frame)
 	 ;; (org-capture-mode . rayners/org-capture-setup)
 	 ;; (org-capture-after-finalize . rayners/org-capture-cleanup))
 	 )
@@ -80,12 +81,12 @@
 				       )))
 	)
   :config
-  (defadvice org-capture (before make-full-window-frame activate)
-    (if (equal "emacs-capture" (frame-parameter nil 'name))
-	(delete-other-windows)))
-  (defadvice org-capture-finalize (after delete-capture-frame activate)
-    (if (equal "emacs-capture" (frame-parameter nil 'name))
-	(delete-frame)))
+  ;; (defadvice org-capture (before make-full-window-frame activate)
+  ;;   (if (equal "emacs-capture" (frame-parameter nil 'name))
+  ;; 	(delete-other-windows)))
+  ;; (defadvice org-capture-finalize (after delete-capture-frame activate)
+  ;;   (if (equal "emacs-capture" (frame-parameter nil 'name))
+  ;; 	(delete-frame)))
   ;; (defun rayners/org-capture-cleanup ()
   ;;   (-when-let ((&alist 'name name) (frame-parameters))
   ;;     (when (equal name "org-protocol-capture")
@@ -287,13 +288,73 @@
   (unless (server-running-p)
     (server-start)))
 
+(use-package noflet
+  :ensure t)
+
+;; swiping from https://github.com/hlissner/doom-emacs/blob/develop/modules/lang/org/autoload/org-capture.el
+
+(defvar rayners/org-capture-frame-parameters
+  '((name . "emacs-capture")
+    (width . 70)
+    (height . 25)
+    (transient . t)
+    (menu-bbar-lines . 1))
+  "TODO")
+
+(defun rayners/org-capture-open-frame (&optional initial-input key)
+  "Opens the org-capture window in a floating frame that cleans
+itself up once you're done. This can be called from an external
+shell script."
+  (interactive)
+  (when (and initial-input (string-empty-p initial-input))
+    (setq initial-input nil))
+  (when (and key (string-empty-p key))
+    (setq key nil))
+  (let* ((frame-title-format "")
+	 (frame (if (rayners/org-capture-frame-p)
+		    (selected-frame)
+		  (make-frame rayners/org-capture-frame-parameters))))
+    (select-frame-set-input-focus frame)
+    (with-selected-frame frame
+      (require 'org-capture)
+      (condition-case ex
+	  (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+     (let ((org-capture-initial initial-input)
+	   org-capture-entry)
+       (when (and key (not (string-empty-p key)))
+	 (setq org-capture-entry (org-capture-select-template key)))
+       (org-capture)))
+	('error
+	 (message "org-capture: %s" (error-message-string ex))
+	 (delete-frame))))))
+
+(defun rayners/org-capture-frame-p ()
+    (and (equal (alist-get 'name rayners/org-capture-frame-parameters)
+		(frame-parameter nil 'name))
+	 (frame-parameter nil 'transient)))
+
+(defun rayners/org-capture-cleanup-frame ()
+  "Closes it"
+  (when (and (rayners/org-capture-frame-p)
+	     (not org-capture-is-refiling))
+    (delete-frame nil t)))
+
+(defun make-capture-frame ()
+  "Create a new frame and run org-capture."
+  (interactive)
+  (make-frame '((name . "emacs-capture")))
+  (select-frame-by-name "emacs-capture")
+  (delete-other-windows)
+  (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+    (org-capture)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(groovy-mode tramp magit yaml-mode consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
+   '(noflet groovy-mode tramp magit yaml-mode consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
  '(safe-local-variable-values
    '((eval progn
 	   (setq-local org-roam-directory

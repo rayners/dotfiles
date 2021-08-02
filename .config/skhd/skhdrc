@@ -1,4 +1,5 @@
 hyper - b : yabai -m space --balance
+hyper - c : emacsclient -ne '(rayners/org-capture-open-frame)'
 hyper - t : yabai -m window --toggle split
 hyper - r : brew services restart koekeishiya/formulae/skhd
 hyper - up : yabai -m window --swap north
