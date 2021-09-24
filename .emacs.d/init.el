@@ -48,7 +48,7 @@
 	 ;; (org-capture-after-finalize . rayners/org-capture-cleanup))
 	 )
   :init
-  (setq org-agenda-files '("~/org/" "~/org/org")
+  (setq org-agenda-files (seq-filter 'file-directory-p '("~/org/" "~/Code/personal/org/org")) ;; include if exists
 	org-default-notes-file "~/org/inbox.org"
 	org-return-follows-link t
 	org-startup-indented t
@@ -58,18 +58,31 @@
 	org-agenda-custom-commands '(("n" "Agenda and all TODOs"
 				      ((agenda #1="")
 				       (alltodo #1#)))
-				     (" " "My agenda"
+				     (" a" "Basic agenda"
 				      ((agenda ""
 					       ((org-agenda-span 1)
-						(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done 'deadline 'scheduled)))
-					       )
+						(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done 'deadline 'scheduled))
+						(org-agenda-show-all-dates nil)
+						(org-agenda-time-grid '((daily today require-timed)
+									(800 1200 1600 2000)
+									"......"
+									"----------------"))
+						(org-agenda-prefix-format "  %?-12t% s")
+					       ))
 				       (agenda nil
-					       ((org-agenda-entry-types '(:scheduled :deadline))
-						(org-agenda-format-date "")
+					       ((org-agenda-entry-types '(:deadline))
 						(org-deadline-warning-days 7)
 						(org-agenda-use-time-grid nil)
 						(org-agenda-show-all-dates nil)
-						(org-agenda-overriding-header "Dates")
+						(org-agenda-overriding-header "Deadlines")
+						))
+				       (agenda ""
+					       ((org-agenda-files '("~/org/gcal.org"))
+						(org-agenda-show-all-dates nil)
+						(org-agenda-use-time-grid nil)
+						(org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "Interview\\|Feedback Session"))
+						(org-agenda-prefix-format "  %?-12t% s")
+						(org-agenda-overriding-header "Interviews")
 						))
 				       (tags-todo "work"
 						  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
@@ -78,7 +91,11 @@
 				       (tags-todo "-work"
 						  ((org-agenda-overriding-header "Other Tasks"))
 						  )
-				       )))
+				       ))
+				     (" i" "Inbox" tags-todo "inbox")
+				     )
+	org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
+				 "* TODO %?\n  %u\n  %a"))
 	)
   :config
   ;; (defadvice org-capture (before make-full-window-frame activate)
@@ -122,7 +139,8 @@
 		 (direction . right)
 		 (window-width . 0.33)
 		 (window-height . fit-window-to-buffer)))
-  (setq org-roam-directory "~/roam"
+  (setq org-roam-v2-ack t
+	org-roam-directory "~/roam"
 	org-roam-capture-templates '(("d" "default/local" plain "%?"
 				      :if-new (file+head "${slug}.org"
 							 "#+title: ${title}\n")
