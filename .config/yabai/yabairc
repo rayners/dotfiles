@@ -1,7 +1,9 @@
+# -*- mode: shell-script; -*-
+
 yabai -m config layout bsp
 
 # For future reference
-# Number of spaces: abai -m query --spaces | jq -r '[.[].display] | unique | length'
+# Number of spaces: yabai -m query --spaces | jq -r '[.[].display] | unique | length'
 
 # Set all padding and gaps to 20pt (default: 0)
 yabai -m config top_padding    20
