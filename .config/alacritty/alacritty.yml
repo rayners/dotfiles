@@ -1,10 +1,10 @@
-background_opacity: 0.8
 cursor:
   style:
     shape: underline
     blinking: Always
 window:
   decorations: none
+  opacity: 0.75
 font:
   normal:
     family: "JetBrainsMono Nerd Font Mono"
