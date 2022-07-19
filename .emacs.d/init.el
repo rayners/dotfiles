@@ -23,14 +23,20 @@
 (use-package modus-themes
   :ensure
   :init
-  (setq modus-themes-slanted-constructs t
+  (setq modus-themes-italic-constructs t
 	modus-themes-bold-constructs t
-	modus-themes-region 'no-extend
-	modus-themes-headings '((t . section))
-	modus-themes-scale-headings t
-	modus-themes-variable-pitch-headings t
-	modus-themes-paren-match 'intense
+	modus-themes-region '(no-extend)
+	modus-themes-paren-match '(intense)
+	;; org-mode headings
+	modus-themes-headings '((1 . (rainbow extrabold background 1.2))
+				(2 . (rainbow bold background 1.1))
+				)
 	)
+  ;; (setq 
+  ;; 	modus-themes-headings '((t . section))
+  ;; 	modus-themes-scale-headings t
+  ;; 	;modus-themes-variable-pitch-headings t
+  ;; 	)
   
   (modus-themes-load-themes)
   :config
@@ -80,7 +86,7 @@
 					       ((org-agenda-files '("~/org/gcal.org"))
 						(org-agenda-show-all-dates nil)
 						(org-agenda-use-time-grid nil)
-						(org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "Interview\\|Feedback Session"))
+						(org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "Interview\\|Feedback Session\\|Onboarding"))
 						(org-agenda-prefix-format "  %?-12t% s")
 						(org-agenda-overriding-header "Interviews")
 						))
@@ -94,8 +100,13 @@
 				       ))
 				     (" i" "Inbox" tags-todo "inbox")
 				     )
-	org-capture-templates '(("t" "Task" entry (file+headline "" "Tasks")
-				 "* TODO %?\n  %u\n  %a"))
+	org-capture-templates '(
+				("t" "Task" entry (file+headline "" "Tasks")
+				 "* TODO %?\n  %u\n  %a")
+				("R" "To read" entry (file "~/Code/personal/org/org/to-read.org")
+				 "* TODO %:annotation\n  %i\n"
+				 :immediate-finish t)
+				)
 	)
   :config
   ;; (defadvice org-capture (before make-full-window-frame activate)
@@ -115,15 +126,18 @@
   ;; 	  (delete-other-windows)
   ;; 	  (raise-frame)))))
   )
+(use-package f
+  :ensure t)
 
 (use-package org-roam
   :ensure t
-
+  :after f
   :bind (("C-c n l" . org-roam-buffer-toggle)
 	 ("C-c n c" . org-roam-capture)
 	 ("C-c n f" . org-roam-node-find)
 	 ("C-c n i" . org-roam-node-insert)
 	 ("C-c n t" . org-roam-dailies-capture-today)
+	 ("C-c n T" . org-roam-dailies-goto-today)
 	 )
   :config
   (org-roam-setup)
@@ -154,6 +168,8 @@
 					  :if-new (file+head "${slug}.org"
 							     "#+title: ${title}\n")
 					  :unnarrowed t))
+ 	;; org-roam-dailies-directory "daily/"
+	;; org-roam-dail
 	;; org-roam-dailies-directory "daily/" ;; default... for now
 	;; org-roam-dailies-capture-templates '(("d" "default/local" entry "* %<%H:%M>\n\n%?"
 	;; 				      :if-new (file+datetree "%<%Y-%b>.org" day))
@@ -309,6 +325,12 @@
 (use-package noflet
   :ensure t)
 
+(use-package protobuf-mode
+  :ensure t)
+
+(use-package dockerfile-mode
+  :mode "Dockerfile-.*\\'"
+  :ensure t)
 ;; swiping from https://github.com/hlissner/doom-emacs/blob/develop/modules/lang/org/autoload/org-capture.el
 
 (defvar rayners/org-capture-frame-parameters
@@ -372,7 +394,7 @@ shell script."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(noflet groovy-mode tramp magit yaml-mode consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
+   '(dockerfile-mode haml-mode f protobuf-mode protobuf noflet groovy-mode tramp magit yaml-mode consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
  '(safe-local-variable-values
    '((eval progn
 	   (setq-local org-roam-directory
