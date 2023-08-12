@@ -1,6 +1,12 @@
+# -*- mode: conf; -*-
+
 hyper - b : yabai -m space --balance
 hyper - c : emacsclient -ne '(rayners/org-capture-open-frame)'
 hyper - t : yabai -m window --toggle split
 hyper - r : brew services restart koekeishiya/formulae/skhd
 hyper - up : yabai -m window --swap north
 hyper - down : yabay -m window --swap south
+hyper - left : yabai -m window --swap west
+hyper - right : yabai -m window --swap east
+#hyper - r : yabai -m space --rotate 90
+hyper - q : yabai -m space --rotate 90

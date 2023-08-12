@@ -7,8 +7,11 @@ window:
   opacity: 0.75
 font:
   normal:
-    family: "JetBrainsMono Nerd Font Mono"
+    family: "CaskaydiaCove Nerd Font Mono"
+#    family: "JetBrainsMono Nerd Font Mono"
+#    family: "Cascadia Code PL"
     style: Regular
+  size: 12.0
 # XTerm's default colors
 colors:
    # Default colors
@@ -64,3 +67,7 @@ colors:
 #     magenta: '#a47de9'
 #     cyan:    '#99faf2'
 #     white:   '#ffffff'
+
+import:
+  - ~/.config/alacritty/catppuccin/catppuccin-mocha.yml
+
