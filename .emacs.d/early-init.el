@@ -1,13 +1,13 @@
- (setq package-enabled-at-startup t)
-
-(setq frame-inhibit-implied-resize t)
-;(menu-bar-mode -1)
-(menu-bar-mode t)
+;; 2023-04-11
+(setq package-enabled-at-startup nil) ;; for elpaca
+(menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(setq inhibit-splash-screen t)
-(setq use-dialog-box t)
-(setq use-file-dialog nil)
-(setq inhibit-startup-echo-area-message "rayners")
-(setq inhibit-startup-screen t)
-(setq inhibit-startup-buffer-menu t)
+(set-fringe-mode 10)
+(setq use-dialog-box nil
+      use-file-dialog nil
+      inhibit-startup-echo-area-message "rayners"
+      inhibit-startup-screen t
+      inhibit-startup-buffer-menu t)
+
+;; from the org-file
