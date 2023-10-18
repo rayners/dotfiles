@@ -22,6 +22,7 @@ docbook
 docbook-xsl
 docutils
 double-conversion
+duktape
 exa
 fd
 fontconfig
@@ -158,8 +159,10 @@ powerlevel10k
 pycparser
 pygments
 python-certifi
+python-setuptools
 python@3.10
 python@3.11
+python@3.12
 python@3.8
 python@3.9
 qt
@@ -224,5 +227,6 @@ lunar
 milkman
 notion
 postman
+raycast
 rectangle
 spacelauncher
