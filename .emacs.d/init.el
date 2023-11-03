@@ -150,6 +150,8 @@
 
 (use-package markdown-mode)
 
+(use-package protobuf-mode)
+
 (use-package consult
   :bind (("C-s" . consult-line)))
 

@@ -730,6 +730,10 @@ Don't forget, you can use =M-x untabify= to nix tabs if needed.
 #+begin_src emacs-lisp
   (use-package markdown-mode)
 #+end_src
+*** Protobuf
+#+begin_src emacs-lisp
+  (use-package protobuf-mode)
+#+end_src
 ** Searching in files
 *** consult
 #+begin_src emacs-lisp
