@@ -1,0 +1,20 @@
+# This is the default filter chain
+# [SpamFilter]
+[KillThreadsFilter]
+[ListMailsFilter]
+[ArchiveSentMailsFilter]
+# [InboxFilter]
+
+[HeaderMatchingFilter.1]
+message = Tagging airbrake projects
+query = from:donotreply@alerts.airbrake.io or from:comment-bot@airbrake.io
+header = Subject
+pattern = \[(?P<project>.*?)\] (?P<env>[A-za-z0-9-_]+) 
+tags = +airbrake;+auto-cleanup;+airbrake/{project};+airbrake/{env}
+
+[HeaderMatchingFilter.2]
+message = Tagging docusign emails
+query = mid:/docusign.net$/
+header = Sender
+pattern = dse_demo@docusign.net
+tags = +docusign-demo;+docusign;+auto-cleanup
