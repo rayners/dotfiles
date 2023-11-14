@@ -18,6 +18,8 @@ yabai -m rule --add app="^zoom\\.us$" manage=off
 yabai -m rule --add app="^1Password 7$" manage=off
 yabai -m rule --add app="^App Store$" manage=off
 yabai -m rule --add app="^Banyan$" manage=off
+yabai -m rule --add app="^Calculator$" manage=off
+yabai -m rule --add app="^Steam$" manage=off
 yabai -m rule --add app="^Stream Deck$" manage=off
 yabai -m rule --add title="^emacs-capture$" manage=off
 yabai -m rule --add title="^Slack.*Huddle$" manage=off
