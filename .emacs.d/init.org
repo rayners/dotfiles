@@ -730,6 +730,10 @@ Don't forget, you can use =M-x untabify= to nix tabs if needed.
 #+begin_src emacs-lisp
   (use-package markdown-mode)
 #+end_src
+*** Protobuf
+#+begin_src emacs-lisp
+  (use-package protobuf-mode)
+#+end_src
 ** Searching in files
 *** consult
 #+begin_src emacs-lisp
@@ -739,7 +743,10 @@ Don't forget, you can use =M-x untabify= to nix tabs if needed.
 ** Checking stuff
 #+begin_src emacs-lisp
   (use-package flycheck
-    :init (global-flycheck-mode))
+    :init
+    (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)
+          flycheck-idle-change-delay 4)
+    (global-flycheck-mode))
 #+end_src
 
 *** Ruby and Rubocop
@@ -748,6 +755,16 @@ Don't forget, you can use =M-x untabify= to nix tabs if needed.
   ((ruby-mode . ((flycheck-command-wrapper-function . (lambda (command)
                                                         (append '("bundle" "exec") command))))))
 
+#+end_src
+
+Maybe we can try this though...
+#+begin_src emacs-lisp
+  (defun rayners/ruby-setup ()
+    (setq-local flycheck-command-wrapper-function
+                (lambda (command)
+                  (append '("bundle" "exec") command))))
+
+  (add-hook 'ruby-mode-hook #'rayners/ruby-setup)
 #+end_src
 ** Specific Languages and Tools
 *** TODO rspec
@@ -759,6 +776,7 @@ built-in.
 
 #+begin_src emacs-lisp
   (use-package exec-path-from-shell
+    :demand t
     :config
     (when (memq window-system '(mac ns))
       (exec-path-from-shell-initialize)))

@@ -150,13 +150,26 @@
 
 (use-package markdown-mode)
 
+(use-package protobuf-mode)
+
 (use-package consult
   :bind (("C-s" . consult-line)))
 
 (use-package flycheck
-  :init (global-flycheck-mode))
+  :init
+  (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)
+        flycheck-idle-change-delay 4)
+  (global-flycheck-mode))
+
+(defun rayners/ruby-setup ()
+  (setq-local flycheck-command-wrapper-function
+              (lambda (command)
+                (append '("bundle" "exec") command))))
+
+(add-hook 'ruby-mode-hook #'rayners/ruby-setup)
 
 (use-package exec-path-from-shell
+  :demand t
   :config
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize)))
@@ -181,5 +194,5 @@
 
 (use-package denote
   :custom
-  (denote-directory (expand "~/notes"))
+  (denote-directory (expand-file-name "~/notes"))
   )
