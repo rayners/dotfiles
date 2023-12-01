@@ -6,6 +6,7 @@
 # https://github.com/FelixKratz/dotfiles
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
+TRANSPARENT=0x00000000
 
 ##### Bar Appearance #####
 # Configuring the general appearance of the bar, these are only some of the
@@ -16,25 +17,27 @@ PLUGIN_DIR="$CONFIG_DIR/plugins"
 
 sketchybar --bar height=20        \
                  blur_radius=30   \
-                 position=top     \
+                 position=bottom     \
                  sticky=off       \
                  padding_left=10  \
                  padding_right=10 \
-                 color=0xff9b9b9b \
-                 corner_radius=8 \
+                 color=$TRANSPARENT \
+                 corner_radius=5 \
                  margin=10 \
                  y_offset=3
 
 # original color was 0x15ffffff
+# And then                  color=0xff9b9b9b \
+
 
 ##### Changing Defaults #####
 # We now change some default values that are applied to all further items
 # For a full list of all available item properties see:
 # https://felixkratz.github.io/SketchyBar/config/items
 
-sketchybar --default icon.font="JetBrainsMono Nerd Font Mono:Bold:12.0"  \
+sketchybar --default icon.font="JetBrainsMono Nerd Font Mono:Bold:14.0"  \
                      icon.color=0xffffffff                 \
-                     label.font="JetBrainsMono Nerd Font Mono:Bold:10.0" \
+                     label.font="JetBrainsMono Nerd Font Mono:Bold:12.0" \
                      label.color=0xffffffff                \
                      padding_left=5                        \
                      padding_right=5                       \
