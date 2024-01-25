@@ -452,14 +452,16 @@ Now
   ;; 2023-04-11
   (setq package-enabled-at-startup nil) ;; for elpaca
   (menu-bar-mode -1)
+  (tool-bar-mode 1)
+  (tool-bar-mode 0)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (set-fringe-mode 10)
   (setq use-dialog-box nil
-	use-file-dialog nil
-	inhibit-startup-echo-area-message "rayners"
-	inhibit-startup-screen t
-	inhibit-startup-buffer-menu t)
+        use-file-dialog nil
+        inhibit-startup-echo-area-message "rayners"
+        inhibit-startup-screen t
+        inhibit-startup-buffer-menu t)
 
   ;; from the org-file
 #+end_src
@@ -660,6 +662,13 @@ This is the other completion thingy. Seems like vertico doesn't work in eshells?
 #+end_src
 
 * Dealing with code
+** Treesitter
+#+begin_src emacs-lisp
+  (setq treesit-language-source-alist
+        '(
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+          ))
+#+end_src
 ** Project.el
 
 Let's explicitly load it, for reasons.
@@ -678,6 +687,11 @@ I <3 Magit. I want to figure out how to load it so that the =project.el= magit m
     :bind ("C-x p m" . magit-project-status)
     :hook (git-commit-setup . git-commit-turn-on-flyspell)
     )
+
+  (use-package transient)
+  (use-package emacsql-sqlite)
+  (use-package forge
+    :after (magit transient emacsql-sqlite))
 #+end_src
 
 ** Searching
@@ -714,6 +728,9 @@ Don't forget, you can use =M-x untabify= to nix tabs if needed.
 *** JS
 
 #+begin_src emacs-lisp
+  ;; (use-package js-ts
+  ;;   :elpaca nil
+  ;;   )
 #+end_src
 
 *** Groovy

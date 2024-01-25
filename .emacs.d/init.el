@@ -124,6 +124,11 @@
 
 (setq org-startup-indented t)
 
+(setq treesit-language-source-alist
+      '(
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        ))
+
 (use-package project)
 
 (use-package magit
@@ -131,6 +136,11 @@
   :bind ("C-x p m" . magit-project-status)
   :hook (git-commit-setup . git-commit-turn-on-flyspell)
   )
+
+(use-package transient)
+(use-package emacsql-sqlite)
+(use-package forge
+  :after (magit transient emacsql-sqlite))
 
 (setq xref-search-program 'ripgrep)
 
@@ -142,7 +152,9 @@
 
 (use-package haml-mode)
 
-
+;; (use-package js-ts
+;;   :elpaca nil
+;;   )
 
 (use-package groovy-mode)
 
