@@ -82,20 +82,29 @@
   (fontaine-set-preset 'regular)
   )
 
-(use-package ef-themes
-  :init
-  (setq ef-themes-to-toggle '(ef-frost ef-night)
-	ef-themes-mixed-fonts t)
-  (setq ef-themes-headings
-	'((1 . (variable-pitch 1.5))
-	  (2 . (variable-pitch 1.3))
-	  (3 . (1.1))
-	  (agenda-date . (1.3))
-	  (agenda-structure . (variable-pitch light 1.8))
-	  (t . (t))))
-  (mapc #'disable-theme custom-enabled-themes)
-  (ef-themes-select 'ef-frost)
-  )
+;; (use-package ef-themes
+;;   :init
+;;   (setq ef-themes-to-toggle '(ef-frost ef-night)
+;; 	ef-themes-mixed-fonts t)
+;;   (setq ef-themes-headings
+;; 	'((1 . (variable-pitch 1.5))
+;; 	  (2 . (variable-pitch 1.3))
+;; 	  (3 . (1.1))
+;; 	  (agenda-date . (1.3))
+;; 	  (agenda-structure . (variable-pitch light 1.8))
+;; 	  (t . (t))))
+;;   (mapc #'disable-theme custom-enabled-themes)
+;;   (ef-themes-select 'ef-frost)
+;;   )
+
+(use-package modus-themes
+  :ensure t
+  :config
+  ;; put config bits here
+
+  (load-theme 'modus-vivendi)
+
+  (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
 ;; work or personal machine, I use the config for both
 (defun rayners/personal-machine-p ()
@@ -168,10 +177,14 @@
   :bind (("C-s" . consult-line)))
 
 (use-package flycheck
+  :after (exec-path-from-shell rbenv) ;; need to make sure paths are available first
   :init
   (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)
         flycheck-idle-change-delay 4)
   (global-flycheck-mode))
+
+(use-package rbenv
+  :ensure t)
 
 (defun rayners/ruby-setup ()
   (setq-local flycheck-command-wrapper-function
