@@ -1,12 +1,11 @@
-;; 2023-04-11
-(defvar elpaca-installer-version 0.3)
+(defvar elpaca-installer-version 0.6)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-			      :ref nil
-			      :files (:defaults (:exclude "extensions"))
-			      :build (:not elpaca--activate-package)))
+                              :ref nil
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
        (build (expand-file-name "elpaca/" elpaca-builds-directory))
        (order (cdr elpaca-order))
@@ -14,19 +13,20 @@
   (add-to-list 'load-path (if (file-exists-p build) build repo))
   (unless (file-exists-p repo)
     (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
     (condition-case-unless-debug err
-	(if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-		 ((zerop (call-process "git" nil buffer t "clone"
-				       (plist-get order :repo) repo)))
-		 ((zerop (call-process "git" nil buffer t "checkout"
-				       (or (plist-get order :ref) "--"))))
-		 (emacs (concat invocation-directory invocation-name))
-		 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-				       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-		 ((require 'elpaca))
-		 ((elpaca-generate-autoloads "elpaca" repo)))
-	    (kill-buffer buffer)
-	  (error "%s" (with-current-buffer buffer (buffer-string))))
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
       ((error) (warn "%s" err) (delete-directory repo 'recursive))))
   (unless (require 'elpaca-autoloads nil t)
     (require 'elpaca)
@@ -40,13 +40,22 @@
   ;; Enable :elpaca use-package keyword.
   (elpaca-use-package-mode)
   ;; Assume :elpaca t unless otherwise specified.
-  (setq elpaca-use-package-by-default t))
+  (setq use-package-always-ensure t))
 
 ;; Block until current queue processed.
 (elpaca-wait)
 
+;; Workaround to load development version of seq
+(defun +elpaca-unload-seq (e) "Unload seq before continuing the elpaca build, then continue to build the recipe E."
+  (and (featurep 'seq) (unload-feature 'seq t))
+  (elpaca--continue-build e))
+(elpaca `(seq :build ,(append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
+                                          elpaca--pre-built-steps
+                                        elpaca-build-steps))
+                             (list '+elpaca-unload-seq 'elpaca--activate-package))))
+
 (use-package server
-  :elpaca nil
+  :ensure nil ;; for builtins, skip elpaca
   :if window-system
   :config
   (unless (server-running-p)
@@ -221,3 +230,16 @@
   :custom
   (denote-directory (expand-file-name "~/notes"))
   )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("8746b94181ba961ebd07c7397339d6a7160ee29c75ca1734aa3744274cbe0370" default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
