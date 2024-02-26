@@ -145,6 +145,7 @@
 (setq treesit-language-source-alist
       '(
         (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
         ))
 
 (use-package project)
@@ -230,16 +231,3 @@
   :custom
   (denote-directory (expand-file-name "~/notes"))
   )
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("8746b94181ba961ebd07c7397339d6a7160ee29c75ca1734aa3744274cbe0370" default)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
