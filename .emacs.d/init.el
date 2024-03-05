@@ -175,6 +175,13 @@
 ;;   :elpaca nil
 ;;   )
 
+;; (defun rayners/js-setup ()
+;;   (setq-local flycheck-command-wrapper-function
+;;               (lambda (command)
+;;                 (append '("npx") command))))
+
+;; (add-hook 'js-mode-hook #'rayners/js-setup)
+
 (use-package groovy-mode)
 
 (use-package yaml-mode)
