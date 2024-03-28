@@ -156,9 +156,12 @@
         (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
         (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
         ))
 
-(use-package project)
+(use-package project
+  :custom (project-vc-extra-root-markers '("module.json"))
+  )
 
 (use-package magit
   :commands magit-project-status
