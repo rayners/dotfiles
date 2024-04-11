@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+cd ~/.mail/MAIL_NAME
+gmi sync

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+afew -t -n -v
+notmuch tag --batch --input=$HOME/.config/notmuch/tags
