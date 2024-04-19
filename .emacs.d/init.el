@@ -56,6 +56,11 @@
                                         elpaca-build-steps))
                              (list '+elpaca-unload-seq 'elpaca--activate-package))))
 
+(use-package savehist
+  :ensure nil ;; builtin
+  :init
+  (savehist-mode))
+
 (use-package server
   :ensure nil ;; for builtins, skip elpaca
   :if window-system
@@ -71,7 +76,7 @@
   :demand t
   :init
   (setq fontaine-presets
-        '((regular :default-family "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
+        '((regular ::default-family "iA Writer Mono V Text";;  "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
                    :default-weight regular
                    :default-height 130
                    :fixed-pitch-family nil ; falls back to :default-family
@@ -81,7 +86,7 @@
                    :fixed-pitch-serif-weight nil ; falls back to :default-weight
                    :fixed-pitch-serif-height 1.0
                    ;; :variable-pitch-family "ETBembo"
-                   :variable-pitch-family "CaskaydiaCove Nerd Font Propo"
+                   :variable-pitch-family "iA Writer Duo V Text" ;;"CaskaydiaCove Nerd Font Propo"
                    :variable-pitch-weight nil
                    :variable-pitch-height 1.2
                    :bold-family nil ; use whatever the underlying face has
@@ -144,10 +149,13 @@
 
 (setq org-startup-indented t)
 
+(require 'org-tempo)
+
 (setq treesit-language-source-alist
       '(
         (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src")
         ))
 
 (use-package project)
@@ -320,7 +328,7 @@
   :after (exec-path-from-shell rbenv) ;; need to make sure paths are available first
   :init
   (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)
-        flycheck-idle-change-delay 4)
+        flycheck-idle-change-delay 8)
   (global-flycheck-mode))
 
 (use-package rbenv
@@ -363,16 +371,3 @@
   :custom
   (denote-directory (expand-file-name "~/notes"))
   )
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("0af489efe6c0d33b6e9b02c6690eb66ab12998e2649ea85ab7cfedfb39dd4ac9" default)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

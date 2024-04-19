@@ -533,6 +533,14 @@ Now
                                (list '+elpaca-unload-seq 'elpaca--activate-package))))
 #+end_src
 
+* Miscenaneous Packages
+
+#+begin_src emacs-lisp
+  (use-package savehist
+    :ensure nil ;; builtin
+    :init
+    (savehist-mode))
+#+end_src
 * Emacs Server
 #+begin_src emacs-lisp
   (use-package server
@@ -554,7 +562,7 @@ Now
 ** Font/faces
 This is the "old" way, I've since decided to try a package to manage fonts.
 #+begin_src emacs-lisp :tangle no
-  (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-12"))
+  (add-to-list 'default-frame-alist '(font . "iA Writer Mono V Text")) ;;"JetBrainsMono Nerd Font Mono-12"))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -562,7 +570,7 @@ This is the "old" way, I've since decided to try a package to manage fonts.
     :demand t
     :init
     (setq fontaine-presets
-          '((regular :default-family "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
+          '((regular ::default-family "iA Writer Mono V Text";;  "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
                      :default-weight regular
                      :default-height 130
                      :fixed-pitch-family nil ; falls back to :default-family
@@ -572,7 +580,7 @@ This is the "old" way, I've since decided to try a package to manage fonts.
                      :fixed-pitch-serif-weight nil ; falls back to :default-weight
                      :fixed-pitch-serif-height 1.0
                      ;; :variable-pitch-family "ETBembo"
-                     :variable-pitch-family "CaskaydiaCove Nerd Font Propo"
+                     :variable-pitch-family "iA Writer Duo V Text" ;;"CaskaydiaCove Nerd Font Propo"
                      :variable-pitch-weight nil
                      :variable-pitch-height 1.2
                      :bold-family nil ; use whatever the underlying face has
@@ -681,6 +689,11 @@ This is the other completion thingy. Seems like vertico doesn't work in eshells?
 (setq org-startup-indented t)
 #+end_src
 
+** Setup the structure templates
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
+
 * Dealing with code
 ** Treesitter
 #+begin_src emacs-lisp
@@ -688,6 +701,7 @@ This is the other completion thingy. Seems like vertico doesn't work in eshells?
         '(
           (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
           (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+          (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src")
           ))
 #+end_src
 ** Project.el
@@ -912,7 +926,7 @@ Don't forget, you can use =M-x untabify= to nix tabs if needed.
     :after (exec-path-from-shell rbenv) ;; need to make sure paths are available first
     :init
     (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)
-          flycheck-idle-change-delay 4)
+          flycheck-idle-change-delay 8)
     (global-flycheck-mode))
 #+end_src
 
