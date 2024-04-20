@@ -114,10 +114,28 @@
 ;;   )
 
 (use-package modus-themes
-  :ensure t
   :config
   ;; put config bits here
 
+  (setq modus-themes-italic-constructs t
+        modus-themes-bold-constructs t
+        modus-themes-mixed-fonts t
+        modus-themes-variable-pitch-ui nil
+
+        modus-themes-prompts '(italic bold)
+
+        modus-themes-completions
+        '((matches . (extrabold))
+          (selection . (semibold italic text-also)))
+
+        modus-themes-org-blocks 'gray-background
+
+        modus-themes-headings
+      '((1 . (variable-pitch 1.5))
+        (2 . (1.3))
+        (agenda-date . (1.3))
+        (agenda-structure . (variable-pitch light 1.8))
+        (t . (1.1))))
   (load-theme 'modus-vivendi)
 
   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
@@ -159,9 +177,9 @@
         (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
         ))
 
-(use-package project
-  :custom (project-vc-extra-root-markers '("module.json"))
-  )
+;; (use-package project
+;;   :custom (project-vc-extra-root-markers '("module.json"))
+;;   )
 
 (use-package magit
   :commands magit-project-status
@@ -374,3 +392,6 @@
   :custom
   (denote-directory (expand-file-name "~/notes"))
   )
+
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
