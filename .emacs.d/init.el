@@ -56,6 +56,12 @@
                                         elpaca-build-steps))
                              (list '+elpaca-unload-seq 'elpaca--activate-package))))
 
+(use-package emacs
+  :elpaca nil ;; no actual package involved
+  :init
+  (setq load-prefer-newer t)
+  )
+
 (use-package savehist
   :ensure nil ;; builtin
   :init

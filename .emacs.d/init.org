@@ -533,6 +533,15 @@ Now
                                (list '+elpaca-unload-seq 'elpaca--activate-package))))
 #+end_src
 
+* Misc Settings
+#+begin_src emacs-lisp
+  (use-package emacs
+    :elpaca nil ;; no actual package involved
+    :init
+    (setq load-prefer-newer t)
+    )
+
+#+end_src
 * Miscenaneous Packages
 
 #+begin_src emacs-lisp
