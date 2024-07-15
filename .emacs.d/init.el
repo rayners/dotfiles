@@ -56,8 +56,20 @@
                                         elpaca-build-steps))
                              (list '+elpaca-unload-seq 'elpaca--activate-package))))
 
+(use-package eldoc
+  :preface
+  ;; avoid loading of built-in eldoc, see https://github.com/progfolio/elpaca/issues/236#issuecomment-1879838229
+  (unload-feature 'eldoc t)
+  (setq custom-delayed-init-variables '())
+  (defvar global-eldoc-mode nil)
+  :demand t
+  :config
+  (global-eldoc-mode))
+
+(elpaca-wait)
+
 (use-package emacs
-  :elpaca nil ;; no actual package involved
+  :ensure nil ;; no actual package involved
   :init
   (setq load-prefer-newer t)
   )
@@ -146,6 +158,10 @@
 
   (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 
+(use-package avy
+  :bind ("M-j" . avy-goto-char-timer)
+  )
+
 ;; work or personal machine, I use the config for both
 (defun rayners/personal-machine-p ()
   (string= (user-real-login-name) "rayners"))
@@ -156,6 +172,11 @@
 (use-package vertico
   :init
   (vertico-mode))
+
+(use-package vertico-posframe
+  :after vertico
+  :init
+  (vertico-posframe-mode 1))
 
 (use-package marginalia
   :init
@@ -358,8 +379,7 @@
         flycheck-idle-change-delay 8)
   (global-flycheck-mode))
 
-(use-package rbenv
-  :ensure t)
+(use-package rbenv)
 
 (defun rayners/ruby-setup ()
   (setq-local flycheck-command-wrapper-function
@@ -367,6 +387,44 @@
                 (append '("bundle" "exec") command))))
 
 (add-hook 'ruby-mode-hook #'rayners/ruby-setup)
+
+;; workaround from https://github.com/progfolio/elpaca/issues/236
+;; (elpaca-test
+;;   :interactive t
+;;   :early-init
+;;   (setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))
+;;   :init
+
+;;   (elpaca elpaca-use-package
+;;     (elpaca-use-package-mode)
+;;     (setq elpaca-use-package-by-default t))
+;;   (elpaca-wait)
+
+;;   (use-package eldoc
+;;     :preface
+;;     (unload-feature 'eldoc t)
+;;     (setq custom-delayed-init-variables '())
+;;     (defvar global-eldoc-mode nil)
+;;     :config
+;;     (global-eldoc-mode)))
+
+;; (use-package eldoc
+;;   :preface
+;;   (unload-feature 'eldoc t)
+;;   (setq custom-delayed-init-variables '())
+;;   (defvar global-eldoc-mode nil)
+;;   :config
+;;   (global-eldoc-mode))
+
+(use-package jsonrpc)
+(use-package eglot
+  :after (eldoc jsonrpc)
+  :hook (prog-mode . eglot-ensure))
+
+(use-package flycheck-eglot
+  :after (flycheck eglot)
+  :config
+  (global-flycheck-eglot-mode 1))
 
 (use-package consult-flycheck)
 
@@ -393,6 +451,11 @@
   (setq notmuch-archive-tags '("-inbox")
         notmuch-search-oldest-first nil)
   )
+
+(use-package elfeed
+  :config
+  (setq elfeed-feeds
+        '("https://karthinks.com/index.xml")))
 
 (use-package denote
   :custom

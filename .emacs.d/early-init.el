@@ -13,3 +13,4 @@
       inhibit-startup-buffer-menu t)
 
 ;; from the org-file
+(setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))

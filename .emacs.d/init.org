@@ -464,6 +464,7 @@ Now
         inhibit-startup-buffer-menu t)
 
   ;; from the org-file
+  (setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))
 #+end_src
 
 * Package management
@@ -531,12 +532,24 @@ Now
                                             elpaca--pre-built-steps
                                           elpaca-build-steps))
                                (list '+elpaca-unload-seq 'elpaca--activate-package))))
+
+  (use-package eldoc
+    :preface
+    ;; avoid loading of built-in eldoc, see https://github.com/progfolio/elpaca/issues/236#issuecomment-1879838229
+    (unload-feature 'eldoc t)
+    (setq custom-delayed-init-variables '())
+    (defvar global-eldoc-mode nil)
+    :demand t
+    :config
+    (global-eldoc-mode))
+
+  (elpaca-wait)
 #+end_src
 
 * Misc Settings
 #+begin_src emacs-lisp
   (use-package emacs
-    :elpaca nil ;; no actual package involved
+    :ensure nil ;; no actual package involved
     :init
     (setq load-prefer-newer t)
     )
@@ -648,6 +661,13 @@ This is the "old" way, I've since decided to try a package to manage fonts.
     (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
 #+end_src
 
+** Movement
+#+begin_src emacs-lisp
+  (use-package avy
+    :bind ("M-j" . avy-goto-char-timer)
+    )
+
+#+end_src
 * Handy functions
 ** Which machine is this?
 
@@ -675,6 +695,11 @@ value, these functions will need to be updated.
   (use-package vertico
     :init
     (vertico-mode))
+
+  (use-package vertico-posframe
+    :after vertico
+    :init
+    (vertico-posframe-mode 1))
 #+end_src
 
 ** Marginalia
@@ -963,8 +988,7 @@ Don't forget, you can use =M-x untabify= to nix tabs if needed.
 *** Ruby and Rubocop
 I use =rbenv= to manage ruby versions for now.
 #+begin_src emacs-lisp
-  (use-package rbenv
-    :ensure t)
+  (use-package rbenv)
 #+end_src
 
 =rubocop= works right out of the box, but to use it with =bundle=, I've setup this snippet in a =.dir-locals.el= file:
@@ -988,6 +1012,46 @@ Maybe we can try this though...
 =elpaca-try= didn't seem to like installing =rspec-mode= so far, maybe
 I'll try again soon. It has =ruby-mode= as a requirement, but that's
 built-in.
+** LSP goodness
+#+begin_src emacs-lisp
+  ;; workaround from https://github.com/progfolio/elpaca/issues/236
+  ;; (elpaca-test
+  ;;   :interactive t
+  ;;   :early-init
+  ;;   (setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))
+  ;;   :init
+
+  ;;   (elpaca elpaca-use-package
+  ;;     (elpaca-use-package-mode)
+  ;;     (setq elpaca-use-package-by-default t))
+  ;;   (elpaca-wait)
+
+  ;;   (use-package eldoc
+  ;;     :preface
+  ;;     (unload-feature 'eldoc t)
+  ;;     (setq custom-delayed-init-variables '())
+  ;;     (defvar global-eldoc-mode nil)
+  ;;     :config
+  ;;     (global-eldoc-mode)))
+
+  ;; (use-package eldoc
+  ;;   :preface
+  ;;   (unload-feature 'eldoc t)
+  ;;   (setq custom-delayed-init-variables '())
+  ;;   (defvar global-eldoc-mode nil)
+  ;;   :config
+  ;;   (global-eldoc-mode))
+
+  (use-package jsonrpc)
+  (use-package eglot
+    :after (eldoc jsonrpc)
+    :hook (prog-mode . eglot-ensure))
+
+  (use-package flycheck-eglot
+    :after (flycheck eglot)
+    :config
+    (global-flycheck-eglot-mode 1))
+#+end_src
 ** Other tools
 #+begin_src emacs-lisp
   (use-package consult-flycheck)
@@ -1034,6 +1098,15 @@ This needs to match general eshells (=*eshell*=) and project specific eshells (=
     (setq notmuch-archive-tags '("-inbox")
           notmuch-search-oldest-first nil)
     )
+#+end_src
+* Reading news/articles
+** Elfeed
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :config
+    (setq elfeed-feeds
+          '("https://karthinks.com/index.xml")))
+
 #+end_src
 * Taking notes
 ** denote
