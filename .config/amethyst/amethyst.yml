@@ -21,8 +21,8 @@ layouts:
   - wide
   # - two-pane
   # - middle-wide
-  # - 3column-left
-  # - middle-wide # The legacy name of "3column-middle"
+  - 3column-left
+  - middle-wide # The legacy name of "3column-middle"
   - 3column-right
   # - 4column-left
   # - 4column-right
@@ -31,7 +31,7 @@ layouts:
   # - floating
   # - widescreen-tall
   - widescreen-tall-right
-  # - bsp
+  - bsp
 
 # First mod (default option + shift).
 mod1:
