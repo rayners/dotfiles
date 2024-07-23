@@ -162,6 +162,10 @@
   :bind ("M-j" . avy-goto-char-timer)
   )
 
+(use-package ace-window
+  :bind ("M-o" . ace-window)
+  )
+
 ;; work or personal machine, I use the config for both
 (defun rayners/personal-machine-p ()
   (string= (user-real-login-name) "rayners"))

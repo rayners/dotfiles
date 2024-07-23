@@ -667,6 +667,9 @@ This is the "old" way, I've since decided to try a package to manage fonts.
     :bind ("M-j" . avy-goto-char-timer)
     )
 
+  (use-package ace-window
+    :bind ("M-o" . ace-window)
+    )
 #+end_src
 * Handy functions
 ** Which machine is this?
