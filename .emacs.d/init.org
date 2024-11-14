@@ -699,10 +699,10 @@ value, these functions will need to be updated.
     :init
     (vertico-mode))
 
-  (use-package vertico-posframe
-    :after vertico
-    :init
-    (vertico-posframe-mode 1))
+  ;; (use-package vertico-posf'rame
+  ;;   :after vertico
+  ;;   :init
+  ;;   (vertico-posframe-mode 1))
 #+end_src
 
 ** Marginalia

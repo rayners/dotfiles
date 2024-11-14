@@ -177,10 +177,10 @@
   :init
   (vertico-mode))
 
-(use-package vertico-posframe
-  :after vertico
-  :init
-  (vertico-posframe-mode 1))
+;; (use-package vertico-posf'rame
+;;   :after vertico
+;;   :init
+;;   (vertico-posframe-mode 1))
 
 (use-package marginalia
   :init
