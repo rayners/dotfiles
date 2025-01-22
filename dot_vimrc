@@ -1,0 +1,6 @@
+# turn on the syntax highlighting
+syntax on
+
+# set a couple really basic vars
+set hlsearch
+set bg=dark
