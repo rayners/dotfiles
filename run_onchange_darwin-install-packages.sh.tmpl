@@ -1,0 +1,15 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+
+{{- $install_cmd := "brew install" -}}
+{{- if lookPath "port" -}}
+{{-   $install_cmd = "sudo port install" -}}
+{{- end -}}
+
+{{ range .packages.darwin.packages }}
+{{ $install_cmd }} {{ . }}
+{{ end }}
+{{ if lookPath "port"}}{{ range .packages.darwin.ports }}sudo port install {{ . }}{{ end }}{{ end }}
+
+
+{{ end -}}

@@ -1,0 +1,16 @@
+packages:
+  darwin:
+    packages:
+      - bat
+      - chezmoi
+      - eza
+      - fd
+      - fzf
+      - gh
+      - git
+      - jq
+      - notmuch
+      - zoxide
+      - zsh
+    ports:
+      - emacs-mac-app
