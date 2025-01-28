@@ -8,9 +8,12 @@ packages:
       - fzf
       - gh
       - git
+      - git-delta
       - jq
       - notmuch
+      - ripgrep
       - zoxide
       - zsh
     ports:
-      - emacs-mac-app
+      - emacs-mac-app-devel
+      - ffmpeg7
