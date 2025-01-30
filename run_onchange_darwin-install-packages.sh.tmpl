@@ -1,20 +1,26 @@
 {{ if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
 
-{{ $install_cmdline := "brew bundle --no-lock --file=/dev/stdin" -}}
-{{ $install_cmd := "brew" -}}
+{{ $tool := "brew" -}}
 {{ if lookPath "port" -}}
-{{   $install_cmdline = "sudo port -F -" -}}
-{{   $install_cmd = "install" -}}
+{{   $tool = "port" -}}
 {{ end -}}
 
-{{ $install_cmdline }} <<EOF
+{{- if eq $tool "port" }}
+sudo port -F - <<EOF
+{{- else }}
+brew bundle --no-lock --file=/dev/stdin <<EOF
+{{ end -}}
 {{ range .packages.darwin.packages -}}
-{{- $install_cmd }} {{ . }}
+{{-  if eq $tool "port" }}
+install {{ . }}
+{{- else -}}
+brew {{ . | quote }}
+{{ end -}}
 {{ end -}}
 EOF
 
-{{ if lookPath "port" -}}
+{{- if eq $tool "port" }}
 sudo port -F - <<EOF
 {{ range .packages.darwin.ports -}}
 install {{ . }}
