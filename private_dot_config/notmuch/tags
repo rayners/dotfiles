@@ -1,0 +1,39 @@
+# Automated notifications
++confluence +auto-cleanup -- from:/confluence@.*[.]atlassian[.]net/
++jira +auto-cleanup -- from:/jira@.*[.]atlassian[.]net/
++expensify +auto-cleanup -- from:concierge@expensify.com
++calendar +auto-cleanup -- tag:attachment and mimetype:"text/calendar"
++airbrake +auto-cleanup -- from:donotreply@alerts.airbrake.io or from:comment-bot@airbrake.io or from:weekly@airbrake.io
++datadog +auto-cleanup -- from:no-reply@dtdg.co
++circleci +auto-cleanup -- from:builds@circleci.com
++lever +auto-cleanup -- from:no-reply@hire.lever.co
++perkspot +auto-cleanup -- from:cs@perkspot.com
++lattice +auto-cleanup -- from:notifications@mg.latticehq.com
++slack +auto-cleanup -- from:no-reply@email.slackhq.com or from:notification@slack.com
++docusign -- mid:/docusign.net$/
++grubhub +auto-cleanup -- from:orders@eat.grubhub.com
++pusher +auto-cleanup -- XOriginalSender:support@pusher.com
++ruby-weekly -- from:rw@peterc.org
++pagerduty +auto-cleanup -- from:pagerduty.com
++zoom +auto-cleanup -- from:no-reply@zoom.us
++mandrill +auto-cleanup -- mid:/mandrillapp.com$/ or subject:"Create Mandrill Subaccount: error"
+
+# TypeOfThing shared with you: "ABC..."
++shared-docs +auto-cleanup -- from:drive-shares-dm-noreply@google.com
+
+# github activities
++github -- from:notifications@github.com or from:noreply@github.com
++github-issue -- tag:github and mid:/issue_event/
++merged -- tag:github-issue and body:merged
++closed -- tag:github-issue and body:closed
++reopened -- tag:github-issue and body:reopened
++release +auto-cleanup -- tag:github and mid:/releases/
++approved-by-me -- tag:github and mid:/review/ and body:"rayners approved this pull request"
+
+# Cleanup stuff
++trash -inbox -- (thread:"{tag:merged}" or (thread:"{tag:closed}" and not thread:"{tag:reopened}")) and thread:"{tag:inbox}" and not thread:"{date:4w..}"
++trash -inbox -- tag:inbox and tag:auto-cleanup and not date:4w..
+
+# Finally a little bit of bookkeeping
+# -new -- tag:new
+-new -- tag:new
