@@ -1,0 +1,1137 @@
+#+title: Emacs Configuration
+#+property: header-args:emacs-lisp :exports code :results none :tangle init.el
+#+startup: overview
+
+* Original bits
+
+#+begin_src emacs-lisp :exports none :tangle no
+  ;; (require 'package)
+  ;; (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  ;; (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t)
+
+  ;; (setq frame-title-format '("%b")) ;; just show the buffer name
+
+  ;; ;; bell stuff
+  ;; (setq ring-bell-function nil)
+  ;; (setq visible-bell t)
+
+  ;; ;; follow symlinks
+  ;; (setq vc-follow-symlinks t)
+
+  ;; ;; weird elpa SSL issues?
+  ;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
+  ;; (defun rayners/personal-machine-p ()
+  ;;   (string= (user-real-login-name) "rayners"))
+
+  ;; (defun rayners/work-machine-p ()
+  ;;   (not (rayners/personal-machine-p)))
+
+  ;; ;; (use-package modus-themes
+  ;; ;;   :ensure
+  ;; ;;   :init
+  ;; ;;   (setq modus-themes-italic-constructs t
+  ;; ;; 	modus-themes-bold-constructs t
+  ;; ;; 	modus-themes-region '(no-extend)
+  ;; ;; 	modus-themes-paren-match '(intense)
+  ;; ;; 	;; org-mode headings
+  ;; ;; 	modus-themes-headings '((1 . (rainbow extrabold background 1.2))
+  ;; ;; 				(2 . (rainbow bold background 1.1))
+  ;; ;; 				)
+  ;; ;; 	)
+  ;; ;;   ;; (setq 
+  ;; ;;   ;; 	modus-themes-headings '((t . section))
+  ;; ;;   ;; 	modus-themes-scale-headings t
+  ;; ;;   ;; 	;modus-themes-variable-pitch-headings t
+  ;; ;;   ;; 	)
+  
+  ;; ;;   (modus-themes-load-themes)
+  ;; ;;   :config
+  ;; ;;   (modus-themes-load-vivendi)
+
+  ;; ;;   :bind ("<f5>" . modus-themes-toggle))
+
+  ;; (use-package modus-themes
+  ;;   :ensure t
+  ;;   :config
+  ;;   (setq modus-themes-italic-constructs t)
+  ;;   (load-theme 'modus-vivendi)
+
+  ;;   :bind ("<f5>" . modus-themes-toggle))
+
+  ;; (use-package org
+  ;;   :ensure
+  ;;   :bind (("C-c a" . org-agenda)
+  ;; 	 ("C-c c" . org-capture))
+  ;;   :hook ((org-mode . auto-fill-mode)
+  ;; 	 (org-capture-after-finalize . rayners/org-capture-cleanup-frame)
+  ;; 	 ;; (org-capture-mode . rayners/org-capture-setup)
+  ;; 	 ;; (org-capture-after-finalize . rayners/org-capture-cleanup))
+  ;; 	 )
+  ;;   :init
+  ;;   (setq org-agenda-files (seq-filter 'file-directory-p '("~/org/" "~/Code/personal/org/org")) ;; include if exists
+  ;; 	org-default-notes-file "~/org/inbox.org"
+  ;; 	org-return-follows-link t
+  ;; 	org-startup-indented t
+  ;; 	org-refile-use-outline-path 'file
+  ;; 	org-refile-targets '((nil . (:maxlevel . 2))
+  ;; 			     (org-agenda-files . (:maxlevel . 2)))
+  ;; 	org-agenda-custom-commands '(("n" "Agenda and all TODOs"
+  ;; 				      ((agenda #1="")
+  ;; 				       (alltodo #1#)))
+  ;; 				     (" a" "Basic agenda"
+  ;; 				      ((agenda ""
+  ;; 					       ((org-agenda-span 1)
+  ;; 						(org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done 'deadline 'scheduled))
+  ;; 						(org-agenda-show-all-dates nil)
+  ;; 						(org-agenda-time-grid '((daily today require-timed)
+  ;; 									(800 1200 1600 2000)
+  ;; 									"......"
+  ;; 									"----------------"))
+  ;; 						(org-agenda-prefix-format "  %?-12t% s")
+  ;; 					       ))
+  ;; 				       (agenda nil
+  ;; 					       ((org-agenda-entry-types '(:deadline))
+  ;; 						(org-deadline-warning-days 7)
+  ;; 						(org-agenda-use-time-grid nil)
+  ;; 						(org-agenda-show-all-dates nil)
+  ;; 						(org-agenda-overriding-header "Deadlines")
+  ;; 						))
+  ;; 				       (agenda ""
+  ;; 					       ((org-agenda-files '("~/org/gcal.org"))
+  ;; 						(org-agenda-show-all-dates nil)
+  ;; 						(org-agenda-use-time-grid nil)
+  ;; 						(org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "Interview\\|Feedback Session\\|Onboarding"))
+  ;; 						(org-agenda-prefix-format "  %?-12t% s")
+  ;; 						(org-agenda-overriding-header "Interviews")
+  ;; 						))
+  ;; 				       (tags-todo "work"
+  ;; 						  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
+  ;; 						   (org-agenda-overriding-header "Work Stuff"))
+  ;; 						  )
+  ;; 				       (tags-todo "-work"
+  ;; 						  ((org-agenda-overriding-header "Other Tasks"))
+  ;; 						  )
+  ;; 				       ))
+  ;; 				     (" i" "Inbox" tags-todo "inbox")
+  ;; 				     )
+  ;; 	org-capture-templates '(
+  ;; 				("t" "Task" entry (file+headline "" "Tasks")
+  ;; 				 "* TODO %?\n  %u\n  %a")
+  ;; 				("R" "To read" entry (file "~/Code/personal/org/org/to-read.org")
+  ;; 				 "* TODO %:annotation\n  %i\n"
+  ;; 				 :immediate-finish t)
+  ;; 				)
+  ;; 	)
+  ;;   :config
+  ;;   ;; (defadvice org-capture (before make-full-window-frame activate)
+  ;;   ;;   (if (equal "emacs-capture" (frame-parameter nil 'name))
+  ;;   ;; 	(delete-other-windows)))
+  ;;   ;; (defadvice org-capture-finalize (after delete-capture-frame activate)
+  ;;   ;;   (if (equal "emacs-capture" (frame-parameter nil 'name))
+  ;;   ;; 	(delete-frame)))
+  ;;   ;; (defun rayners/org-capture-cleanup ()
+  ;;   ;;   (-when-let ((&alist 'name name) (frame-parameters))
+  ;;   ;;     (when (equal name "org-protocol-capture")
+  ;;   ;; 	(delete-frame))))
+  ;;   ;; (defun rayners/org-capture-setup ()
+  ;;   ;;   (-when-let ((&alist 'name name) (frame-parameters))
+  ;;   ;;     (when (equal name "org-protocol-capture")
+  ;;   ;; 	(progn
+  ;;   ;; 	  (delete-other-windows)
+  ;;   ;; 	  (raise-frame)))))
+  ;;   )
+  ;; (use-package f
+  ;;   :ensure t)
+
+  ;; (use-package org-roam
+  ;;   :ensure t
+  ;;   :after f
+  ;;   :bind (("C-c n l" . org-roam-buffer-toggle)
+  ;; 	 ("C-c n c" . org-roam-capture)
+  ;; 	 ("C-c n f" . org-roam-node-find)
+  ;; 	 ("C-c n i" . org-roam-node-insert)
+  ;; 	 ("C-c n t" . org-roam-dailies-capture-today)
+  ;; 	 ("C-c n T" . org-roam-dailies-goto-today)
+  ;; 	 )
+  ;;   :config
+  ;;   (org-roam-setup)
+  ;;   (require 'org-roam-protocol)
+  ;;   (cl-defmethod org-roam-node-directories ((node org-roam-node))
+  ;;     (if-let ((dirs (file-name-directory (file-relative-name (org-roam-node-file node) org-roam-directory))))
+  ;; 	(format "(%s)" (string-join (f-split dirs) "/"))
+  ;;       ""))
+  ;;   :init
+  ;;   (add-to-list 'display-buffer-alist
+  ;; 	       '("\\*org-roam\\*"
+  ;; 		 (display-buffer-in-direction)
+  ;; 		 (direction . right)
+  ;; 		 (window-width . 0.33)
+  ;; 		 (window-height . fit-window-to-buffer)))
+  ;;   (setq org-roam-v2-ack t
+  ;; 	org-roam-directory "~/roam"
+  ;; 	org-roam-capture-templates '(("d" "default/local" plain "%?"
+  ;; 				      :if-new (file+head "${slug}.org"
+  ;; 							 "#+title: ${title}\n")
+  ;; 				      :unnarrowed t)
+  ;; 				     ("s" "shared" plain "%?"
+  ;; 				      :if-new (file+head "shared/${slug}.org"
+  ;; 							 "#+title: ${title}\n")
+  ;; 				      :unnarrowed t))
+  ;; 	org-roam-node-display-template "${directories:10} ${title:*} ${tags:10}"
+  ;; 	org-roam-capture-ref-templates '(("r" "ref" plain "%?"
+  ;; 					  :if-new (file+head "${slug}.org"
+  ;; 							     "#+title: ${title}\n")
+  ;; 					  :unnarrowed t))
+  ;;  	;; org-roam-dailies-directory "daily/"
+  ;; 	;; org-roam-dail
+  ;; 	;; org-roam-dailies-directory "daily/" ;; default... for now
+  ;; 	;; org-roam-dailies-capture-templates '(("d" "default/local" entry "* %<%H:%M>\n\n%?"
+  ;; 	;; 				      :if-new (file+datetree "%<%Y-%b>.org" day))
+  ;; 	;; 				     ("s" "shared" entry "* %<%H:%M>\n\n%?"
+  ;; 	;; 				      :if-new (file+datetree "../shared/daily/%<%Y-%b>.org" day))
+  ;; 	;; 				     )
+  ;; 	;; org-roam-dailies-capture-templates '(("d" "daily" entry "* %?"
+  ;; 	;; 				      :if-new (file+datetree "%<%Y-%b>.org" week)))
+  ;; 	)
+  ;;   ;; (n-roam-tag-sources '(prop vanilla all-directories))
+  ;;   ;; (org-roam-capture-templates '(("d" "default/local" plain (function org-roam-capture--get-point)
+  ;;   ;; 				 "%?"
+  ;;   ;; 				 :file-name "${slug}"
+  ;;   ;; 				 :head "#+title: ${title}\n\n"
+  ;;   ;; 				 :unnarrowed t)
+  ;;   ;; 				("w" "work" plain (function org-roam-capture--get-point)
+  ;;   ;; 				 "%?"
+  ;;   ;; 				 :file-name "work/${slug}"
+  ;;   ;; 				 :head "#+title: ${title}\n\n"
+  ;;   ;; 				 :unnarrowed t)
+  ;;   ;; 				("i" "icloud" plain (function org-roam-capture--get-point)
+  ;;   ;; 				 "%?"
+  ;;   ;; 				 :file-name "icloud/${slug}"
+  ;;   ;; 				 :head "#+title: ${title}\n\n"
+  ;;   ;; 				 :unnarrowed t)))
+  ;;   )
+
+  ;; (use-package org-gcal
+  ;;   :if (rayners/work-machine-p)
+  ;;   :after org
+  ;;   :config
+  ;;   (let* ((creds (nth 0 (auth-source-search :host "org-gcal" :require '(:user :secret))))
+  ;; 	 (gcal-id (if creds (plist-get creds :user)))
+  ;; 	 (gcal-secret (if creds (funcall (plist-get creds :secret)))))
+  ;;     (setq org-gcal-client-id gcal-id
+  ;; 	  org-gcal-client-secret gcal-secret
+  ;; 	  org-gcal-file-alist (list `(,(plist-get (nth 0 (auth-source-search :host "gmail")) :user) . "~/org/gcal.org"))
+  ;; 	  org-gcal-auto-archive nil
+  ;; 	  org-gcal-notify-p nil
+  ;; 	  org-gcal-remove-api-cancelled-events t))
+  ;;   :hook ((org-agenda-mode . org-gcal-fetch)
+  ;; 	 (org-capture-after-finalize . org-gcal-fetch))
+  ;;   )
+
+  ;; (use-package mini-frame
+  ;;   :ensure
+  ;;   :init
+  ;;   (mini-frame-mode +1))
+
+  ;; (use-package selectrum
+  ;;   :after mini-frame
+  ;;   :ensure
+  ;;   :init
+  ;;   (selectrum-mode +1))
+
+  ;; (use-package orderless
+  ;;   :ensure
+  ;;   :custom (completion-styles '(orderless))
+  ;;   )
+
+  ;; (use-package marginalia
+  ;;   :ensure
+  ;;   :init
+  ;;   (marginalia-mode))
+
+  ;; (use-package autorevert
+  ;;   :hook (after-init . global-auto-revert-mode)) ; always on for everybody
+
+  ;; (use-package exec-path-from-shell
+  ;;   :ensure
+  ;;   :config
+  ;;   (when (memq window-system '(mac ns))
+  ;;     (exec-path-from-shell-initialize)))
+
+  ;; (use-package notmuch
+  ;;   :ensure
+  ;;   :bind (("C-c m m" . rayners-notmuch)
+  ;; 	 :map notmuch-search-mode-map
+  ;; 	 ("D" . (lambda ()
+  ;; 		  "Mark message as trash"
+  ;; 		  (interactive)
+  ;; 		  (notmuch-search-tag '("-inbox" "+trash"))
+  ;; 		  (notmuch-search-next-thread))))
+  ;;   :config
+  ;;   (defun rayners-notmuch ()
+  ;;     (interactive)
+  ;;     (delete-other-windows)
+  ;;     (notmuch))
+
+  ;;   :init
+  ;;   (setq notmuch-archive-tags '("-inbox")
+  ;; 	notmuch-search-oldest-first nil))
+
+  ;; (use-package rainbow-delimiters
+  ;;   :ensure
+  ;;   :hook (prog-mode . rainbow-delimiters-mode))
+
+  ;; (use-package paren
+  ;;   :config
+  ;;   (show-paren-mode 1))
+
+  ;; (use-package consult
+  ;;   :ensure
+  ;;   :bind (("C-x b" . consult-buffer)
+  ;; 	 ("M-s l" . consult-line)
+  ;; 	 ("M-s e" . consult-isearch)
+  ;; 	 :map isearch-mode-map
+  ;; 	 ("M-e" . consult-isearch)
+  ;; 	 ("M-s e" . consult-isearch)
+  ;; 	 ("M-s l" . consult-line)
+  ;; 	 ))
+
+  ;; (use-package embark
+  ;;   :ensure t
+  ;;   :bind (("C-." . embark-act)))
+
+  ;; (use-package yaml-mode
+  ;;   :ensure t)
+
+  ;; (use-package tramp
+  ;;   :ensure t)
+
+  ;; (use-package magit
+  ;;   :ensure t
+  ;;   :after tramp
+  ;;   :bind (("C-x C-z" . magit-status)
+  ;; 	 ("C-x C-Z" . rayners/yadm-magit-status))
+  ;;   :init
+  ;;   (require 'tramp)
+  ;;   (add-to-list 'tramp-methods
+  ;; 	       '("yadm"
+  ;; 		 (tramp-login-program "/usr/local/bin/yadm")
+  ;; 		 (tramp-login-args (("enter")))
+  ;; 		 (tramp-login-env (("SHELL") ("/bin/sh")))
+  ;; 		 (tramp-remote-shell "/bin/zsh")
+  ;; 		 (tramp-remote-shell-args ("-c"))))
+  ;;   (defun rayners/yadm-magit-status ()
+  ;;     (interactive)
+  ;;     (magit-status "/yadm::"))
+  ;;   )
+
+  ;; (use-package groovy-mode
+  ;;   :when (rayners/work-machine-p)
+  ;;   :ensure
+  ;;   :mode "Jenkinsfile\\'")
+
+  ;; (use-package server
+  ;;   :if window-system
+  ;;   :config
+  ;;   (unless (server-running-p)
+  ;;     (server-start)))
+
+  ;; (use-package noflet
+  ;;   :ensure t)
+
+  ;; (use-package protobuf-mode
+  ;;   :ensure t)
+
+  ;; (use-package dockerfile-mode
+  ;;   :mode "Dockerfile-.*\\'"
+  ;;   :ensure t)
+  ;; ;; swiping from https://github.com/hlissner/doom-emacs/blob/develop/modules/lang/org/autoload/org-capture.el
+
+  ;; (defvar rayners/org-capture-frame-parameters
+  ;;   '((name . "emacs-capture")
+  ;;     (width . 70)
+  ;;     (height . 25)
+  ;;     (transient . t)
+  ;;     (menu-bbar-lines . 1))
+  ;;   "TODO")
+
+  ;; (defun rayners/org-capture-open-frame (&optional initial-input key)
+  ;;   "Opens the org-capture window in a floating frame that cleans
+  ;; itself up once you're done. This can be called from an external
+  ;; shell script."
+  ;;   (interactive)
+  ;;   (when (and initial-input (string-empty-p initial-input))
+  ;;     (setq initial-input nil))
+  ;;   (when (and key (string-empty-p key))
+  ;;     (setq key nil))
+  ;;   (let* ((frame-title-format "")
+  ;; 	 (frame (if (rayners/org-capture-frame-p)
+  ;; 		    (selected-frame)
+  ;; 		  (make-frame rayners/org-capture-frame-parameters))))
+  ;;     (select-frame-set-input-focus frame)
+  ;;     (with-selected-frame frame
+  ;;       (require 'org-capture)
+  ;;       (condition-case ex
+  ;; 	  (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+  ;;      (let ((org-capture-initial initial-input)
+  ;; 	   org-capture-entry)
+  ;;        (when (and key (not (string-empty-p key)))
+  ;; 	 (setq org-capture-entry (org-capture-select-template key)))
+  ;;        (org-capture)))
+  ;; 	('error
+  ;; 	 (message "org-capture: %s" (error-message-string ex))
+  ;; 	 (delete-frame))))))
+
+  ;; (defun rayners/org-capture-frame-p ()
+  ;;     (and (equal (alist-get 'name rayners/org-capture-frame-parameters)
+  ;; 		(frame-parameter nil 'name))
+  ;; 	 (frame-parameter nil 'transient)))
+
+  ;; (defun rayners/org-capture-cleanup-frame ()
+  ;;   "Closes it"
+  ;;   (when (and (rayners/org-capture-frame-p)
+  ;; 	     (not org-capture-is-refiling))
+  ;;     (delete-frame nil t)))
+
+  ;; (defun make-capture-frame ()
+  ;;   "Create a new frame and run org-capture."
+  ;;   (interactive)
+  ;;   (make-frame '((name . "emacs-capture")))
+  ;;   (select-frame-by-name "emacs-capture")
+  ;;   (delete-other-windows)
+  ;;   (noflet ((switch-to-buffer-other-window (buf) (switch-to-buffer buf)))
+  ;;     (org-capture)))
+
+  ;; (custom-set-variables
+  ;;  ;; custom-set-variables was added by Custom.
+  ;;  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;;  ;; Your init file should contain only one such instance.
+  ;;  ;; If there is more than one, they won't work right.
+  ;;  '(custom-safe-themes
+  ;;    '("dde643b0efb339c0de5645a2bc2e8b4176976d5298065b8e6ca45bc4ddf188b7" default))
+  ;;  '(package-selected-packages
+  ;;    '(forge markdown-mode slack dockerfile-mode haml-mode f protobuf-mode protobuf noflet groovy-mode tramp magit yaml-mode consult embark embark-consult rainbow-delimiters mini-frame exec-path-from-shell notmuch org-gcal which-key selectrum marginalia orderless org-roam project use-package))
+  ;;  '(safe-local-variable-values
+  ;;    '((eval progn
+  ;; 	   (setq-local org-roam-directory
+  ;; 		       (locate-dominating-file default-directory ".dir-locals.el"))
+  ;; 	   (setq-local org-roam-db-location
+  ;; 		       (concat org-roam-directory "org-roam.db"))))))
+  ;; (custom-set-faces
+  ;;  ;; custom-set-faces was added by Custom.
+  ;;  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;;  ;; Your init file should contain only one such instance.
+  ;;  ;; If there is more than one, they won't work right.
+  ;;  )
+
+#+end_src
+
+* Early init parts
+
+Previously
+#+begin_src emacs-lisp :exports none :tangle no
+  ;;  (setq package-enabled-at-startup t)
+  ;; old stuff
+
+  ;; (setq frame-inhibit-implied-resize t)
+  ;; ;(menu-bar-mode -1)
+  ;; (menu-bar-mode t)
+  ;; (tool-bar-mode -1)
+  ;; (scroll-bar-mode -1)
+  ;; (setq inhibit-splash-screen t)
+  ;; (setq use-dialog-box t)
+  ;; (setq use-file-dialog nil)
+  ;; (setq inhibit-startup-echo-area-message "rayners")
+  ;; (setq inhibit-startup-screen t)
+  ;; (setq inhibit-startup-buffer-menu t)
+#+end_src
+
+Now
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; 2023-04-11
+  (setq package-enabled-at-startup nil) ;; for elpaca
+  (menu-bar-mode -1)
+  (tool-bar-mode 1)
+  (tool-bar-mode 0)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (set-fringe-mode 10)
+  (setq use-dialog-box nil
+        use-file-dialog nil
+        inhibit-startup-echo-area-message "rayners"
+        inhibit-startup-screen t
+        inhibit-startup-buffer-menu t)
+
+  ;; from the org-file
+  (setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))
+#+end_src
+
+* Package management
+** Elpaca install and configure
+
+#+begin_src emacs-lisp
+  (defvar elpaca-installer-version 0.7)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                                :ref nil :depth 1
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (< emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                   ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                   ,@(when-let ((depth (plist-get order :depth)))
+                                                       (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                   ,(plist-get order :repo) ,repo))))
+                   ((zerop (call-process "git" nil buffer t "checkout"
+                                         (or (plist-get order :ref) "--"))))
+                   (emacs (concat invocation-directory invocation-name))
+                   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                         "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                   ((require 'elpaca))
+                   ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+#+end_src
+
+** Use-package
+
+#+begin_src emacs-lisp
+  ;; Install use-package support
+  (elpaca elpaca-use-package
+    ;; Enable :elpaca use-package keyword.
+    (elpaca-use-package-mode)
+    ;; Assume :elpaca t unless otherwise specified.
+    (setq use-package-always-ensure t))
+
+  ;; Block until current queue processed.
+  (elpaca-wait)
+
+  ;; Workaround to load development version of seq
+  (defun +elpaca-unload-seq (e) "Unload seq before continuing the elpaca build, then continue to build the recipe E."
+    (and (featurep 'seq) (unload-feature 'seq t))
+    (elpaca--continue-build e))
+  (elpaca `(seq :build ,(append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
+                                            elpaca--pre-built-steps
+                                          elpaca-build-steps))
+                               (list '+elpaca-unload-seq 'elpaca--activate-package))))
+
+  (use-package eldoc
+    :preface
+    ;; avoid loading of built-in eldoc, see https://github.com/progfolio/elpaca/issues/236#issuecomment-1879838229
+    (unload-feature 'eldoc t)
+    (setq custom-delayed-init-variables '())
+    (defvar global-eldoc-mode nil)
+    :demand t
+    :config
+    (global-eldoc-mode))
+
+  (elpaca-wait)
+#+end_src
+
+* Misc Settings
+#+begin_src emacs-lisp
+  (use-package emacs
+    :ensure nil ;; no actual package involved
+    :init
+    (setq load-prefer-newer t)
+    )
+
+#+end_src
+* Miscenaneous Packages
+
+#+begin_src emacs-lisp
+  (use-package savehist
+    :ensure nil ;; builtin
+    :init
+    (savehist-mode))
+#+end_src
+* Emacs Server
+#+begin_src emacs-lisp
+  (use-package server
+    :ensure nil ;; for builtins, skip elpaca
+    :if window-system
+    :config
+    (unless (server-running-p)
+      (server-start)))
+#+end_src
+* UI Pieces
+** Bell
+
+#+begin_src emacs-lisp
+  ;; bell pieces
+  (setq visible-bell t)
+  (setq ring-bell-function nil)
+#+end_src
+
+** Font/faces
+This is the "old" way, I've since decided to try a package to manage fonts.
+#+begin_src emacs-lisp :tangle no
+  (add-to-list 'default-frame-alist '(font . "iA Writer Mono V Text")) ;;"JetBrainsMono Nerd Font Mono-12"))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package fontaine
+    :demand t
+    :init
+    (setq fontaine-presets
+          '((regular ::default-family "iA Writer Mono V Text";;  "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
+                     :default-weight regular
+                     :default-height 130
+                     :fixed-pitch-family nil ; falls back to :default-family
+                     :fixed-pitch-weight nil ; falls back to :default-weight
+                     :fixed-pitch-height 1.0
+                     :fixed-pitch-serif-family nil ; falls back to :default-family
+                     :fixed-pitch-serif-weight nil ; falls back to :default-weight
+                     :fixed-pitch-serif-height 1.0
+                     ;; :variable-pitch-family "ETBembo"
+                     :variable-pitch-family "iA Writer Duo V Text" ;;"CaskaydiaCove Nerd Font Propo"
+                     :variable-pitch-weight nil
+                     :variable-pitch-height 1.2
+                     :bold-family nil ; use whatever the underlying face has
+                     :bold-weight bold
+                     :italic-family nil
+                     :italic-slant italic
+                     :line-spacing nil)))
+    :config
+    (fontaine-set-preset 'regular)
+    )
+#+end_src
+
+** Theme
+
+#+begin_src emacs-lisp
+  ;; (use-package ef-themes
+  ;;   :init
+  ;;   (setq ef-themes-to-toggle '(ef-frost ef-night)
+  ;; 	ef-themes-mixed-fonts t)
+  ;;   (setq ef-themes-headings
+  ;; 	'((1 . (variable-pitch 1.5))
+  ;; 	  (2 . (variable-pitch 1.3))
+  ;; 	  (3 . (1.1))
+  ;; 	  (agenda-date . (1.3))
+  ;; 	  (agenda-structure . (variable-pitch light 1.8))
+  ;; 	  (t . (t))))
+  ;;   (mapc #'disable-theme custom-enabled-themes)
+  ;;   (ef-themes-select 'ef-frost)
+  ;;   )
+
+  (use-package modus-themes
+    :config
+    ;; put config bits here
+
+    (setq modus-themes-italic-constructs t
+          modus-themes-bold-constructs t
+          modus-themes-mixed-fonts t
+          modus-themes-variable-pitch-ui nil
+
+          modus-themes-prompts '(italic bold)
+
+          modus-themes-completions
+          '((matches . (extrabold))
+            (selection . (semibold italic text-also)))
+
+          modus-themes-org-blocks 'gray-background
+
+          modus-themes-headings
+        '((1 . (variable-pitch 1.5))
+          (2 . (1.3))
+          (agenda-date . (1.3))
+          (agenda-structure . (variable-pitch light 1.8))
+          (t . (1.1))))
+    (load-theme 'modus-vivendi)
+
+    (define-key global-map (kbd "<f5>") #'modus-themes-toggle))
+#+end_src
+
+** Movement
+#+begin_src emacs-lisp
+  (use-package avy
+    :bind ("M-j" . avy-goto-char-timer)
+    )
+
+  (use-package ace-window
+    :bind ("M-o" . ace-window)
+    )
+#+end_src
+* Handy functions
+** Which machine is this?
+
+Since I use this config for both work and personal/other non-work
+functions, it is handy to have functions I can reference later in the
+configuration that will determine which configuration I should be
+using. For these, I have it keyed off the login username, which for my
+personal machine is =rayners=. If my work login ever has the same
+value, these functions will need to be updated.
+
+#+begin_src emacs-lisp
+
+  ;; work or personal machine, I use the config for both
+  (defun rayners/personal-machine-p ()
+    (string= (user-real-login-name) "rayners"))
+
+  (defun rayners/work-machine-p ()
+    (not (rayners/personal-machine-p)))
+#+end_src
+
+* Completion
+** Vertico
+
+#+begin_src emacs-lisp
+  (use-package vertico
+    :init
+    (vertico-mode))
+
+  ;; (use-package vertico-posf'rame
+  ;;   :after vertico
+  ;;   :init
+  ;;   (vertico-posframe-mode 1))
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :init
+    (marginalia-mode))
+#+end_src
+
+** Orderless
+
+This allows completion to be more than just straight strings.
+
+#+begin_src emacs-lisp
+  (use-package orderless
+    :custom
+    (completion-styles '(orderless basic)))
+#+end_src
+
+** Corfu
+
+This is the other completion thingy. Seems like vertico doesn't work in eshells?
+
+#+begin_src emacs-lisp
+  (use-package corfu
+    :init
+    (global-corfu-mode))
+#+end_src
+
+* Org Mode
+** Auto tangling
+
+#+begin_src emacs-lisp
+  
+#+end_src
+** Indent mode
+#+begin_src emacs-lisp
+(setq org-startup-indented t)
+#+end_src
+
+** Setup the structure templates
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
+
+* Dealing with code
+** Treesitter
+#+begin_src emacs-lisp
+  (setq treesit-language-source-alist
+        '(
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "v0.20.1" "src")
+          (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "typescript/src")
+          (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src")
+          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "v0.20.3" "tsx/src")
+          (ruby "https://github.com/tree-sitter/tree-sitter-ruby" "v0.20.1" "src")
+          ))
+#+end_src
+** Project.el
+
+Let's explicitly load it, for reasons.
+
+#+begin_src emacs-lisp
+  ;; (use-package project
+  ;;   :custom (project-vc-extra-root-markers '("module.json"))
+  ;;   )
+#+end_src
+
+** Magit
+
+I <3 Magit. I want to figure out how to load it so that the =project.el= magit menu/keybinding is available before I load it.
+
+#+begin_src emacs-lisp
+  (use-package magit
+    :commands magit-project-status
+    :bind ("C-x p m" . magit-project-status)
+    :hook (git-commit-setup . git-commit-turn-on-flyspell)
+    )
+
+  (use-package transient)
+  (use-package forge
+    :after (magit transient))
+#+end_src
+
+** Searching
+
+=ripgrep= is faster than =grep=
+
+#+begin_src emacs-lisp
+  (setq xref-search-program 'ripgrep)
+#+end_src
+
+** Delimiters
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode)
+    )
+#+end_src
+
+** File formats
+
+*** No tabs
+
+Don't forget, you can use =M-x untabify= to nix tabs if needed.
+
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+end_src
+
+*** Haml
+
+#+begin_src emacs-lisp
+  (use-package haml-mode)
+#+end_src
+
+*** JS
+
+#+begin_src emacs-lisp
+  ;; (use-package js-ts
+  ;;   :elpaca nil
+  ;;   )
+
+  ;; (defun rayners/js-setup ()
+  ;;   (setq-local flycheck-command-wrapper-function
+  ;;               (lambda (command)
+  ;;                 (append '("npx") command))))
+
+  ;; (add-hook 'js-mode-hook #'rayners/js-setup)
+#+end_src
+
+*** Groovy
+
+#+begin_src emacs-lisp
+  (use-package groovy-mode)
+#+end_src
+
+*** YAML files
+#+begin_src emacs-lisp
+  (use-package yaml-mode)
+#+end_src
+*** Markdown files
+#+begin_src emacs-lisp
+  (use-package markdown-mode)
+#+end_src
+*** Protobuf
+#+begin_src emacs-lisp
+  (use-package protobuf-mode)
+#+end_src
+** Searching in files
+*** consult
+#+begin_src emacs-lisp
+  ;; (use-package consult
+  ;;   :bind (("C-s" . consult-line)))
+
+  ;; Swiped from Consult docs for now
+
+  ;; Example configuration for Consult
+  (use-package consult
+    ;; Replace bindings. Lazily loaded due by `use-package'.
+    :bind (;; C-c bindings in `mode-specific-map'
+           ("C-c M-x" . consult-mode-command)
+           ("C-c h" . consult-history)
+           ("C-c k" . consult-kmacro)
+           ("C-c m" . consult-man)
+           ("C-c i" . consult-info)
+           ([remap Info-search] . consult-info)
+           ;; C-x bindings in `ctl-x-map'
+           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+           ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+           ;; M-g bindings in `goto-map'
+           ("M-g e" . consult-compile-error)
+           ("M-g f" . consult-flycheck)              ;; Alternative: consult-flycheck
+           ("M-g g" . consult-goto-line)             ;; orig. goto-line
+           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings in `search-map'
+           ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+           ("M-s c" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+    ;; Enable automatic preview at point in the *Completions* buffer. This is
+    ;; relevant when you use the default completion UI.
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+
+    ;; The :init configuration is always executed (Not lazy)
+    :init
+
+    ;; Optionally configure the register formatting. This improves the register
+    ;; preview for `consult-register', `consult-register-load',
+    ;; `consult-register-store' and the Emacs built-ins.
+    (setq register-preview-delay 0.5
+          register-preview-function #'consult-register-format)
+
+    ;; Optionally tweak the register preview window.
+    ;; This adds thin lines, sorting and hides the mode line of the window.
+    (advice-add #'register-preview :override #'consult-register-window)
+
+    ;; Use Consult to select xref locations with preview
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+
+    ;; Configure other variables and modes in the :config section,
+    ;; after lazily loading the package.
+    :config
+
+    ;; Optionally configure preview. The default value
+    ;; is 'any, such that any key triggers the preview.
+    ;; (setq consult-preview-key 'any)
+    ;; (setq consult-preview-key "M-.")
+    ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+    ;; For some commands and buffer sources it is useful to configure the
+    ;; :preview-key on a per-command basis using the `consult-customize' macro.
+    (consult-customize
+     consult-theme :preview-key '(:debounce 0.2 any)
+     consult-ripgrep consult-git-grep consult-grep
+     consult-bookmark consult-recent-file consult-xref
+     consult--source-bookmark consult--source-file-register
+     consult--source-recent-file consult--source-project-recent-file
+     ;; :preview-key "M-."
+     :preview-key '(:debounce 0.4 any))
+
+    ;; Optionally configure the narrowing key.
+    ;; Both < and C-+ work reasonably well.
+    (setq consult-narrow-key "<") ;; "C-+"
+
+    ;; Optionally make narrowing help available in the minibuffer.
+    ;; You may want to use `embark-prefix-help-command' or which-key instead.
+    ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+    ;; By default `consult-project-function' uses `project-root' from project.el.
+    ;; Optionally configure a different project root function.
+    ;;;; 1. project.el (the default)
+    ;; (setq consult-project-function #'consult--default-project--function)
+    ;;;; 2. vc.el (vc-root-dir)
+    ;; (setq consult-project-function (lambda (_) (vc-root-dir)))
+    ;;;; 3. locate-dominating-file
+    ;; (setq consult-project-function (lambda (_) (locate-dominating-file "." ".git")))
+    ;;;; 4. projectile.el (projectile-project-root)
+    ;; (autoload 'projectile-project-root "projectile")
+    ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
+    ;;;; 5. No project support
+    ;; (setq consult-project-function nil)
+  )
+#+end_src
+** Checking stuff
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :after (exec-path-from-shell rbenv) ;; need to make sure paths are available first
+    :init
+    (setq flycheck-check-syntax-automatically '(save idle-change mode-enabled)
+          flycheck-idle-change-delay 8)
+    (global-flycheck-mode))
+#+end_src
+
+*** Ruby and Rubocop
+I use =rbenv= to manage ruby versions for now.
+#+begin_src emacs-lisp
+  (use-package rbenv)
+#+end_src
+
+=rubocop= works right out of the box, but to use it with =bundle=, I've setup this snippet in a =.dir-locals.el= file:
+#+begin_src emacs-lisp :exports none :tangle no
+  ((ruby-mode . ((flycheck-command-wrapper-function . (lambda (command)
+                                                            (append '("bundle" "exec") command))))))
+
+#+end_src
+
+Maybe we can try this though...
+#+begin_src emacs-lisp
+  (defun rayners/ruby-setup ()
+    (setq-local flycheck-command-wrapper-function
+                (lambda (command)
+                  (append '("bundle" "exec") command))))
+
+  (add-hook 'ruby-mode-hook #'rayners/ruby-setup)
+#+end_src
+** Specific Languages and Tools
+*** TODO rspec
+=elpaca-try= didn't seem to like installing =rspec-mode= so far, maybe
+I'll try again soon. It has =ruby-mode= as a requirement, but that's
+built-in.
+** LSP goodness
+#+begin_src emacs-lisp
+  ;; workaround from https://github.com/progfolio/elpaca/issues/236
+  ;; (elpaca-test
+  ;;   :interactive t
+  ;;   :early-init
+  ;;   (setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))
+  ;;   :init
+
+  ;;   (elpaca elpaca-use-package
+  ;;     (elpaca-use-package-mode)
+  ;;     (setq elpaca-use-package-by-default t))
+  ;;   (elpaca-wait)
+
+  ;;   (use-package eldoc
+  ;;     :preface
+  ;;     (unload-feature 'eldoc t)
+  ;;     (setq custom-delayed-init-variables '())
+  ;;     (defvar global-eldoc-mode nil)
+  ;;     :config
+  ;;     (global-eldoc-mode)))
+
+  ;; (use-package eldoc
+  ;;   :preface
+  ;;   (unload-feature 'eldoc t)
+  ;;   (setq custom-delayed-init-variables '())
+  ;;   (defvar global-eldoc-mode nil)
+  ;;   :config
+  ;;   (global-eldoc-mode))
+
+  (use-package jsonrpc)
+  (use-package eglot
+    :after (eldoc jsonrpc)
+    :hook (prog-mode . eglot-ensure))
+
+  (use-package flycheck-eglot
+    :after (flycheck eglot)
+    :config
+    (global-flycheck-eglot-mode 1))
+#+end_src
+** Other tools
+#+begin_src emacs-lisp
+  (use-package consult-flycheck)
+#+end_src
+* Shell and path pieces
+** =exec-path-from-shell=
+
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :demand t
+    :config
+    (when (memq window-system '(mac ns))
+      (exec-path-from-shell-initialize)))
+#+end_src
+
+** Shell windows on the bottom
+
+This needs to match general eshells (=*eshell*=) and project specific eshells (=*project_name-eshell*=)
+
+#+begin_src emacs-lisp
+  (setq switch-to-buffer-obey-display-actions t)
+  (add-to-list 'display-buffer-alist
+    '("\\*\\(?:[a-z0-9_-]+-\\)?e?shell\\*"
+      (display-buffer-reuse-mode-window display-buffer-in-direction)
+      (mode eshell-mode)
+      (direction . bottom)
+      (window . root)
+      (window-height . 0.25)))
+#+end_src
+
+* Reading ePubs
+
+#+begin_src emacs-lisp
+  (use-package nov
+    :mode ("\\.epub\\'" . nov-mode))
+
+#+end_src
+
+* Reading mail
+** notmuch
+#+begin_src emacs-lisp
+  (use-package notmuch
+    :init
+    (setq notmuch-archive-tags '("-inbox")
+          notmuch-search-oldest-first nil)
+    )
+#+end_src
+* Reading news/articles
+** Elfeed
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :config
+    (setq elfeed-feeds
+          '("https://karthinks.com/index.xml")))
+
+#+end_src
+* Taking notes
+** denote
+#+begin_src emacs-lisp
+    (use-package denote
+      :custom
+      (denote-directory (expand-file-name "~/notes"))
+      )
+#+end_src
+
+* Emacs Customization System
+
+#+begin_src emacs-lisp
+  (setq custom-file "~/.emacs.d/custom.el")
+  (load custom-file)
+#+end_src
+
+
+* Chezmoi?
+#+begin_src emacs-lisp
+  (use-package chezmoi
+    :ensure (:host github :repo "tuh8888/chezmoi.el"))
+
+#+end_src
