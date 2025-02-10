@@ -1,26 +1,23 @@
 {{ if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
 
-{{ $tool := "brew" -}}
-{{ if lookPath "port" -}}
-{{   $tool = "port" -}}
-{{ end -}}
+{{- $tool := .package_manager -}}
 
-{{- if eq $tool "port" }}
+{{- if eq $tool "macports" }}
 sudo port -F - <<EOF
 {{- else }}
 brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ end -}}
 {{ range .packages.darwin.packages -}}
-{{-  if eq $tool "port" }}
+{{-  if eq $tool "macports" }}
 install {{ . }}
 {{- else -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ end -}}
+{{- end }}
 EOF
 
-{{- if eq $tool "port" }}
+{{- if eq $tool "macports" }}
 sudo port -F - <<EOF
 {{ range .packages.darwin.ports -}}
 install {{ . }}

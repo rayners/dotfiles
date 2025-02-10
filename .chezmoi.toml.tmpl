@@ -1,7 +1,19 @@
 {{- $email := promptStringOnce . "email" "Email address" -}}
+{{- $os_version := "unknown" -}}
+{{- $package_manager := "unknown" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $os_version = (output "sw_vers" "-productVersion" | splitList "." | mustFirst | int) -}}
+{{-   if le $os_version 12 -}}
+{{-     $package_manager = "macports" -}}
+{{-   else -}}
+{{-     $package_manager = "homebrew" -}}
+{{-   end -}}
+{{- end -}}
 
 [data]
     email = {{ $email | quote }}
+    os_version = {{ $os_version }}
+    package_manager = {{ $package_manager | quote }}
 
 [diff]
     command = "delta"
