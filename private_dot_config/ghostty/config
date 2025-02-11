@@ -1,0 +1,15 @@
+font-family = DM Mono
+# font-family = UbuntuSansMono Nerd Font Mono
+#iMWritingMono Nerd Font Mono
+# font-family-bold = iMWritingMono Nerd Font Mono Bold
+# font-family-italic = iMWritingMono Nerd Font Mono Italic
+# font-family-bold-italic = iMWritingMono Nerd Font Mono Bold Italic
+# font-family-bold = iA Writer Mono V Bold
+# font-family-italic = iA Writer Mono V Italic
+# font-family-bold-italic = iA Writer Mono V Bold Italic
+# font-style  = Text
+### font-style = Text
+font-size = 13
+font-thicken = true
+
+macos-titlebar-style = hidden
