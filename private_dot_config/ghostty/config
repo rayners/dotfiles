@@ -1,4 +1,5 @@
-font-family = DM Mono
+# font-family = DM Mono
+# font-family = iWritingMono Nerd Font Mono
 # font-family = UbuntuSansMono Nerd Font Mono
 #iMWritingMono Nerd Font Mono
 # font-family-bold = iMWritingMono Nerd Font Mono Bold
@@ -9,7 +10,12 @@ font-family = DM Mono
 # font-family-bold-italic = iA Writer Mono V Bold Italic
 # font-style  = Text
 ### font-style = Text
-font-size = 13
+# font-family = MesloLGS NF
+# font-family = JuliaMono
+# font-family = Maple Mono
+#font-style = Regular
+font-family = Maple Mono NF
+font-size = 12
 font-thicken = true
-
+# font-family = Aporetic Serif Mono
 macos-titlebar-style = hidden
