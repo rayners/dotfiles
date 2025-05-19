@@ -1,20 +1,89 @@
 {{- $email := promptStringOnce . "email" "Email address" -}}
 {{- $os_version := "unknown" -}}
 {{- $package_manager := "unknown" -}}
+{{- $linux_distro := "unknown" -}}
+{{- $desktop_env := "unknown" -}}
+
+{{/* Detect macOS version and preferred package manager */}}
 {{- if eq .chezmoi.os "darwin" -}}
 {{-   $os_version = (output "sw_vers" "-productVersion" | splitList "." | mustFirst | int) -}}
 {{-   if le $os_version 12 -}}
 {{-     $package_manager = "macports" -}}
 {{-   else -}}
-{{-     $package_manager = "homebrew" -}}
+{{-     $package_manager = promptStringOnce . "package_manager" "Preferred package manager (homebrew/macports)" "homebrew" -}}
 {{-   end -}}
 {{- end -}}
+
+{{/* Detect Linux distribution and package manager */}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-   if stat "/etc/debian_version" -}}
+{{-     $linux_distro = "debian" -}}
+{{-     $package_manager = "apt" -}}
+{{-   else if stat "/etc/fedora-release" -}}
+{{-     $linux_distro = "fedora" -}}
+{{-     $package_manager = "dnf" -}}
+{{-   else if stat "/etc/centos-release" -}}
+{{-     $linux_distro = "centos" -}}
+{{-     $package_manager = "yum" -}}
+{{-   else if stat "/etc/arch-release" -}}
+{{-     $linux_distro = "arch" -}}
+{{-     $package_manager = "pacman" -}}
+{{-   else if stat "/etc/alpine-release" -}}
+{{-     $linux_distro = "alpine" -}}
+{{-     $package_manager = "apk" -}}
+{{-   else if stat "/etc/opensuse-release" -}}
+{{-     $linux_distro = "opensuse" -}}
+{{-     $package_manager = "zypper" -}}
+{{-   else -}}
+{{-     $linux_distro = promptStringOnce . "linux_distro" "Linux distribution" -}}
+{{-     $package_manager = promptStringOnce . "package_manager" "Package manager" -}}
+{{-   end -}}
+
+{{/* Detect Linux desktop environment */}}
+{{-   if env "XDG_CURRENT_DESKTOP" -}}
+{{-     $desktop_env = env "XDG_CURRENT_DESKTOP" | lower -}}
+{{-   else if env "DESKTOP_SESSION" -}}
+{{-     $desktop_env = env "DESKTOP_SESSION" | lower -}}
+{{-   else -}}
+{{-     $desktop_env = "cli" -}}
+{{-   end -}}
+{{- end -}}
+
+{{/* Additional user preferences */}}
+{{- $is_work_machine := promptBoolOnce . "is_work_machine" "Is this a work machine?" false -}}
+{{/* Always use Emacs, rbenv, and nvm without prompting */}}
+{{- $use_emacs := true -}}
+{{- $use_nvm := true -}}
+{{- $use_rbenv := true -}}
+{{- $use_pyenv := promptBoolOnce . "use_pyenv" "Do you use pyenv for Python?" true -}}
 
 [data]
     email = {{ $email | quote }}
     os_version = {{ $os_version }}
     package_manager = {{ $package_manager | quote }}
+    linux_distro = {{ $linux_distro | quote }}
+    desktop_env = {{ $desktop_env | quote }}
+    is_work_machine = {{ $is_work_machine }}
+    use_emacs = {{ $use_emacs }}
+    use_nvm = {{ $use_nvm }}
+    use_rbenv = {{ $use_rbenv }}
+    use_pyenv = {{ $use_pyenv }}
 
 [diff]
     command = "delta"
     pager = "delta"
+
+[data.paths]
+{{- if eq .chezmoi.os "darwin" }}
+    # macOS specific paths
+    homebrew_prefix = {{ output "bash" "-c" "if [ -x /opt/homebrew/bin/brew ]; then echo /opt/homebrew; else echo /usr/local; fi" | trim | quote }}
+{{- else if eq .chezmoi.os "linux" }}
+    # Linux specific paths
+    {{- if eq $package_manager "apt" }}
+    zsh_syntax_highlighting = "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    {{- else if eq $package_manager "pacman" }}
+    zsh_syntax_highlighting = "/usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    {{- else }}
+    zsh_syntax_highlighting = "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    {{- end }}
+{{- end }}

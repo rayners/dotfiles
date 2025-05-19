@@ -1,19 +1,84 @@
 packages:
+  # Common packages to install on all platforms
+  # These are the base packages that work everywhere
+  common:
+    - chezmoi
+    - fzf
+    - git
+    - jq
+    - notmuch
+    - ripgrep
+    - zoxide
+    - zsh
+    - zsh-syntax-highlighting
+    - autojump
+
+  # macOS specific packages
   darwin:
-    packages:
+    common:
+      # These packages are installed on macOS with either brew or port
       - bat
-      - chezmoi
       - eza
       - fd
-      - fzf
-      - gh
-      - git
       - git-delta
-      - jq
-      - notmuch
-      - ripgrep
-      - zoxide
-      - zsh
+      - powerlevel10k
+      - zsh-completions
+    
+    # Homebrew-specific packages
+    brew:
+      - gh
+    
+    # MacPorts-specific packages
     ports:
       - emacs-mac-app-devel
       - ffmpeg7
+  
+  # Linux-specific packages
+  linux:
+    common:
+      # Common package names across most Linux distros
+      - bat
+    
+    # Debian/Ubuntu specific packages
+    apt:
+      - fd-find      # Different package name on Debian/Ubuntu
+      - silversearcher-ag
+      - fonts-powerline
+    
+    # Fedora/RHEL specific packages
+    dnf:
+      - fd-find      # Different package name on Fedora
+      - the_silver_searcher
+      - powerline-fonts
+    
+    # Arch Linux specific packages
+    pacman:
+      - fd           # Different package name on Arch
+      - the_silver_searcher
+      - ttf-hack-nerd
+    
+    # openSUSE specific packages
+    zypper:
+      - fd           # Different package name on openSUSE
+      - the_silver_searcher
+      - powerline
+  
+  # Package name mapping for different platforms
+  # Used to handle cases where the same package has different names
+  mapping:
+    # The key is the common name, the value is platform-specific name
+    "fd":
+      apt: "fd-find"
+      dnf: "fd-find"
+      pacman: "fd"
+      zypper: "fd"
+      brew: "fd"
+      port: "fd"
+    
+    "silver-searcher":
+      apt: "silversearcher-ag"
+      dnf: "the_silver_searcher"
+      pacman: "the_silver_searcher"
+      zypper: "the_silver_searcher"
+      brew: "the_silver_searcher"
+      port: "the_silver_searcher"
