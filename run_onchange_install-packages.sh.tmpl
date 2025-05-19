@@ -1,0 +1,168 @@
+#!/bin/bash
+# This script installs required packages based on the detected platform
+# {{ now.Format "2006-01-02" }}
+
+set -eu
+
+# Print section header
+section() {
+  echo
+  echo "=== $1 ==="
+  echo
+}
+
+section "Installing packages for {{ .chezmoi.os }}"
+
+{{ if eq .chezmoi.os "darwin" -}}
+# macOS package installation
+{{- $tool := .package_manager -}}
+
+section "Using {{ $tool }}"
+
+{{ if eq $tool "macports" -}}
+# Using MacPorts on macOS
+sudo port -F - <<EOF
+# Install common packages
+{{ range .packages.common -}}
+install {{ . }}
+{{ end -}}
+
+# Install macOS common packages
+{{ range .packages.darwin.common -}}
+install {{ . }}
+{{ end -}}
+
+# Install port-specific packages
+{{ range .packages.darwin.ports -}}
+install {{ . }}
+{{ end -}}
+EOF
+
+{{ else -}}
+# Using Homebrew on macOS
+brew bundle --no-lock --file=/dev/stdin <<EOF
+# Install common packages
+{{ range .packages.common -}}
+brew {{ . | quote }}
+{{ end -}}
+
+# Install macOS common packages
+{{ range .packages.darwin.common -}}
+brew {{ . | quote }}
+{{ end -}}
+
+# Install brew-specific packages
+{{ range .packages.darwin.brew -}}
+brew {{ . | quote }}
+{{ end -}}
+EOF
+{{ end -}}
+
+{{ else if eq .chezmoi.os "linux" -}}
+# Linux package installation
+{{- $pkgmgr := .package_manager }}
+section "Using {{ $pkgmgr }} on {{ .linux_distro }}"
+
+{{ if eq $pkgmgr "apt" -}}
+# Update package lists
+sudo apt update
+
+# Install packages
+sudo apt install -y \
+# Common packages for all platforms
+{{ range .packages.common -}}
+  {{ . }} \
+{{ end -}}
+# Common packages for Linux
+{{ range .packages.linux.common -}}
+  {{ . }} \
+{{ end -}}
+# Debian/Ubuntu specific packages
+{{ range .packages.linux.apt -}}
+  {{ . }} \
+{{ end -}}
+
+{{ else if eq $pkgmgr "dnf" -}}
+# Update package lists
+sudo dnf check-update || true
+
+# Install packages
+sudo dnf install -y \
+# Common packages for all platforms
+{{ range .packages.common -}}
+  {{ . }} \
+{{ end -}}
+# Common packages for Linux
+{{ range .packages.linux.common -}}
+  {{ . }} \
+{{ end -}}
+# Fedora/RHEL specific packages
+{{ range .packages.linux.dnf -}}
+  {{ . }} \
+{{ end -}}
+
+{{ else if eq $pkgmgr "pacman" -}}
+# Update package lists
+sudo pacman -Sy
+
+# Install packages
+sudo pacman -S --needed --noconfirm \
+# Common packages for all platforms
+{{ range .packages.common -}}
+  {{ . }} \
+{{ end -}}
+# Common packages for Linux
+{{ range .packages.linux.common -}}
+  {{ . }} \
+{{ end -}}
+# Arch Linux specific packages
+{{ range .packages.linux.pacman -}}
+  {{ . }} \
+{{ end -}}
+
+{{ else if eq $pkgmgr "zypper" -}}
+# Update package lists
+sudo zypper refresh
+
+# Install packages
+sudo zypper install -y \
+# Common packages for all platforms
+{{ range .packages.common -}}
+  {{ . }} \
+{{ end -}}
+# Common packages for Linux
+{{ range .packages.linux.common -}}
+  {{ . }} \
+{{ end -}}
+# openSUSE specific packages
+{{ range .packages.linux.zypper -}}
+  {{ . }} \
+{{ end -}}
+
+{{ end -}}
+
+# Install tools that might need manual installation on Linux
+section "Setting up additional tools"
+
+# Install powerlevel10k theme if not installed through a package manager
+if [[ ! -d "${HOME}/.zsh/powerlevel10k" ]]; then
+  echo "Installing powerlevel10k theme..."
+  mkdir -p "${HOME}/.zsh"
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${HOME}/.zsh/powerlevel10k"
+fi
+
+{{ if .use_nvm -}}
+# Install nvm if requested
+if [[ ! -d "${HOME}/.nvm" ]]; then
+  echo "Installing nvm..."
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+fi
+{{ end -}}
+
+{{ end -}}
+
+# Create the cache directory for zsh (works on any platform)
+mkdir -p "${HOME}/.zsh/cache"
+
+section "Installation complete"
+echo "To apply changes, please restart your terminal or run: source ~/.zshrc"
