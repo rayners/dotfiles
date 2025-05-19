@@ -1,0 +1,15 @@
+{{ if .is_work_machine -}}
+# Work-specific aliases - only available on work machines
+# This file is managed by chezmoi
+
+# Admin privileges on macOS
+if [[ "$CURRENT_OS" == "macos" ]]; then
+  alias admin="/Applications/Privileges.app/Contents/Resources/PrivilegesCLI --add"
+fi
+
+# Aliases for typical work directories and projects
+alias cdproj="cd ~/Code/projects"
+alias cdwork="cd ~/Code/work"
+
+# Add any other work-specific aliases below
+{{ end -}}

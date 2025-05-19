@@ -1,0 +1,79 @@
+prompt_class_precmd() {
+  vcs_info
+}
+
+BRANCH_SYMBOL="\ue0a0"
+# Show remote ref name and number of commits ahead-of or behind
+function +vi-git-st() {
+    local ahead behind remote
+    local -a gitstatus
+
+    # Are we on a remote-tracking branch?
+    remote=${$(git rev-parse --verify ${hook_com[branch]}@{upstream} \
+        --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+
+    if [[ -n ${remote} ]] ; then
+        # for git prior to 1.7
+        # ahead=$(git rev-list origin/${hook_com[branch]}..HEAD | wc -l)
+        ahead=$(git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l | tr -d " ")
+        (( $ahead )) && gitstatus+=( "${c3}+${ahead}${c2}" )
+
+        # for git prior to 1.7
+        # behind=$(git rev-list HEAD..origin/${hook_com[branch]} | wc -l)
+        behind=$(git rev-list HEAD..${hook_com[branch]}@{upstream} 2>/dev/null | wc -l | tr -d " ")
+        (( $behind )) && gitstatus+=( "${c4}-${behind}${c2}" )
+
+        hook_com[branch]="%B${hook_com[branch]}%b${gitstatus- ${(j:/:)gitstatus}}"
+    fi
+}
+
+function +vi-git-who() {
+    local email
+    email=$(git config user.email)
+    if [[ -n ${email} ]] ; then
+        hook_com[misc]+="${email}"
+    fi
+}
+
+function colorslist() {
+    for code in {000..255};
+    do
+        let rgb_R="(($code - 16) / 36) * 51"
+        let rgb_G="((($code - 16) % 36) / 6) * 51"
+        let rgb_B="(($code - 16) % 6) * 51"
+        print -P -- "$code: %F{$code}Test ${(l:2::0:)$(([##16]rgb_R))}${(l:2::0:)$(([##16]rgb_G))}${(l:2::0:)$(([##16]rgb_B))}%f";
+    done
+}
+
+prompt_class_setup() {
+    prompt_opts=(subst percent)
+    # setopt "prompt${^prompt_opts[@]}"
+    setopt noprompt{bang,cr,percent,sp,subst} "prompt${^prompt_opts[@]}"
+
+    autoload -Uz vcs_info
+    autoload -Uz add-zsh-hook
+
+    add-zsh-hook precmd prompt_class_precmd
+
+    zstyle ':vcs_info:*' enable git svn bzr
+    zstyle ':vcs_info:*' check-for-changes true
+
+    zstyle ':vcs_info:*' stagedstr "%F{green}⨁"
+    zstyle ':vcs_info:*' unstagedstr "%F{yellow}★"
+
+    # zstyle ':vcs_info:*' actionformats '%F{147}(%f%F{green}%s%f%F{147})%F{54}-%F{147}[%F{2}%b%F{3}|%F{1}%a%F{147}]%f%u%c %m'
+    # zstyle ':vcs_info:*' formats '%F{147}(%f%F{green}%s%f%F{147})-%F{147}[%F{111} %F{208}%b%F{147}]%f%u%c %m'
+    zstyle ':vcs_info:*' formats '%F{green}%B[%m - %b]%%b%f'
+    zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{3}%r '
+
+    zstyle ':vcs_info:git*+set-message:*' hooks git-st git-who
+
+    # some characters to use:
+    # \u16e6: runic branch
+    # \u2023: triangular bullet
+
+    NEWLINE=$'\n'
+    PROMPT='%F{yellow}%B%n@%m%b%f %F{blue}%B%~%b%f ${vcs_info_msg_0_}${NEWLINE}%B%#%b '
+}
+
+prompt_class_setup "$@"

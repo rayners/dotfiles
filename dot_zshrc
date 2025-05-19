@@ -1,0 +1,176 @@
+[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ ' && return
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Used for reporting how load loading takes
+zmodload zsh/datetime
+start=$EPOCHREALTIME
+
+# Load OS-specific settings
+[[ -f "${ZSH_DIR}/profiles/${ZSH_PROFILE}.rc.zsh" ]] && source "${ZSH_DIR}/profiles/${ZSH_PROFILE}.rc.zsh"
+
+autoload -Uz colors && colors
+
+# Load performance tracking first if enabled
+source $ZSH_DIR/performance.zsh
+
+# Load core configurations
+source $ZSH_DIR/package_managers.zsh
+source $ZSH_DIR/editor.zsh
+source $ZSH_DIR/completions.zsh
+source $ZSH_DIR/functions.zsh
+source $ZSH_DIR/aliases.zsh
+# Load work-specific aliases if they exist
+[[ -f "$ZSH_DIR/work_aliases.zsh" ]] && source "$ZSH_DIR/work_aliases.zsh"
+source $ZSH_DIR/history.zsh
+source $ZSH_DIR/fzf.zsh
+source $ZSH_DIR/directories.zsh
+source $ZSH_DIR/rbenv.zsh
+
+# Set up function path - platform-agnostic approach
+fpath=(
+  "$ZSH_DIR/functions"
+  $fpath
+)
+
+# Load custom functions
+autoload -U $ZSH_DIR/functions/*(:t)
+
+# Completions are now managed in completions.zsh
+
+# Helper function for Java environment switching
+function java7() {
+  if [[ -n "$JAVA_7_HOME" ]]; then
+    export JAVA_HOME=$JAVA_7_HOME
+    export CATALINA_HOME=$CATALINA_7_HOME
+  else
+    echo "JAVA_7_HOME is not set"
+  fi
+}
+
+# Completion tweaks
+# - case insensitive completion
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-z}={A-Za-z}'
+
+# Cache completion results
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$ZSH_DIR/cache"
+
+# Ruby version manager support is now in rbenv.zsh
+
+# Load NVM configuration
+source $ZSH_DIR/nvm.zsh
+
+# Initialize pyenv if available
+if has_command pyenv; then 
+  eval "$(pyenv init -)"; 
+fi
+
+# Keyboard settings
+bindkey -e
+bindkey '[C' forward-word
+bindkey '[D' backward-word
+
+export REPORTTIME=10
+
+# Set up prompt
+autoload -U promptinit; promptinit
+if [[ "$ITERM_PROFILE" == "Class" ]]; then
+  prompt class
+else
+  prompt rayners
+fi
+
+# Source zsh-syntax-highlighting based on available package manager and OS
+if [[ "$CURRENT_OS" == "linux" ]]; then
+  # Try standard Linux paths for zsh-syntax-highlighting
+  for dir in \
+    "/usr/share/zsh-syntax-highlighting" \
+    "/usr/share/zsh/plugins/zsh-syntax-highlighting" \
+    "/usr/share/zsh/vendor-completions" \
+    "$HOME/.local/share/zsh-syntax-highlighting" \
+    "/etc/zsh_syntax_highlighting.zsh"; do
+    if [[ -f "$dir/zsh-syntax-highlighting.zsh" ]]; then
+      source "$dir/zsh-syntax-highlighting.zsh"
+      break
+    fi
+  done
+else
+  # macOS package manager paths
+  if [[ "$HAS_HOMEBREW" -eq 1 ]]; then
+    BREW_PREFIX=$(brew --prefix)
+    if [[ -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+      source "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    elif [[ -f "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+      source "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    fi
+  elif [[ "$HAS_MACPORTS" -eq 1 ]]; then
+    if [[ -f "/opt/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+      source "/opt/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    fi
+  fi
+fi
+
+# Local fallback for zsh-syntax-highlighting
+if [[ -f "$ZSH_DIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+  source "$ZSH_DIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+end=$EPOCHREALTIME
+
+# Set up SSH agent socket
+if [[ "$CURRENT_OS" == "macos" ]]; then
+  # macOS-specific SSH agent socket location
+  [[ -S "$HOME/.yubiagent/sock" ]] && export SSH_AUTH_SOCK="$HOME/.yubiagent/sock"
+elif [[ "$CURRENT_OS" == "linux" ]]; then
+  # Use standard SSH agent socket on Linux
+  # This should work with most distributions' default SSH agent setups
+  if [[ -S "$XDG_RUNTIME_DIR/ssh-agent.socket" ]]; then
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+  elif [[ -S "$HOME/.ssh/agent.sock" ]]; then
+    export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+  fi
+fi
+
+# Source fzf completion script if it exists
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Source powerlevel10k theme based on available package manager and OS
+if [[ "$CURRENT_OS" == "linux" ]]; then
+  # Try standard Linux paths for powerlevel10k
+  for dir in \
+    "/usr/share/zsh-theme-powerlevel10k" \
+    "/usr/share/powerlevel10k" \
+    "$HOME/.local/share/powerlevel10k"; do
+    if [[ -f "$dir/powerlevel10k.zsh-theme" ]]; then
+      source "$dir/powerlevel10k.zsh-theme"
+      break
+    fi
+  done
+else
+  # macOS package manager paths
+  if [[ "$HAS_HOMEBREW" -eq 1 ]]; then
+    if [[ -f "$(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+      source "$(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme"
+    elif [[ -f "/usr/local/opt/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+      source "/usr/local/opt/powerlevel10k/powerlevel10k.zsh-theme"
+    fi
+  elif [[ "$HAS_MACPORTS" -eq 1 ]]; then
+    if [[ -f "/opt/local/share/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+      source "/opt/local/share/powerlevel10k/powerlevel10k.zsh-theme"
+    fi
+  fi
+fi
+
+# Fallback to local installation if available
+if [[ -f "${ZSH_DIR}/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+  source "${ZSH_DIR}/powerlevel10k/powerlevel10k.zsh-theme"
+fi
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
