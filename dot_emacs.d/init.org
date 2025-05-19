@@ -458,51 +458,48 @@ Now
   (scroll-bar-mode -1)
   (set-fringe-mode 10)
   (setq use-dialog-box nil
-        use-file-dialog nil
-        inhibit-startup-echo-area-message "rayners"
-        inhibit-startup-screen t
-        inhibit-startup-buffer-menu t)
-
-  ;; from the org-file
-  (setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))
+	use-file-dialog nil
+	inhibit-startup-echo-area-message "rayners"
+	inhibit-startup-screen t
+	inhibit-startup-buffer-menu t)
 #+end_src
 
 * Package management
 ** Elpaca install and configure
 
 #+begin_src emacs-lisp
-  (defvar elpaca-installer-version 0.7)
+  (defvar elpaca-installer-version 0.10)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
   (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                                :ref nil :depth 1
-                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                                :build (:not elpaca--activate-package)))
+				:ref nil :depth 1 :inherit ignore
+				:files (:defaults "elpaca-test.el" (:exclude "extensions"))
+				:build (:not elpaca--activate-package)))
   (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-         (build (expand-file-name "elpaca/" elpaca-builds-directory))
-         (order (cdr elpaca-order))
-         (default-directory repo))
+	 (build (expand-file-name "elpaca/" elpaca-builds-directory))
+	 (order (cdr elpaca-order))
+	 (default-directory repo))
     (add-to-list 'load-path (if (file-exists-p build) build repo))
     (unless (file-exists-p repo)
       (make-directory repo t)
-      (when (< emacs-major-version 28) (require 'subr-x))
+      (when (<= emacs-major-version 28) (require 'subr-x))
       (condition-case-unless-debug err
-          (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                   ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                   ,@(when-let ((depth (plist-get order :depth)))
-                                                       (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                   ,(plist-get order :repo) ,repo))))
-                   ((zerop (call-process "git" nil buffer t "checkout"
-                                         (or (plist-get order :ref) "--"))))
-                   (emacs (concat invocation-directory invocation-name))
-                   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                         "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                   ((require 'elpaca))
-                   ((elpaca-generate-autoloads "elpaca" repo)))
-              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-            (error "%s" (with-current-buffer buffer (buffer-string))))
-        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+	  (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+		    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+						    ,@(when-let* ((depth (plist-get order :depth)))
+							(list (format "--depth=%d" depth) "--no-single-branch"))
+						    ,(plist-get order :repo) ,repo))))
+		    ((zerop (call-process "git" nil buffer t "checkout"
+					  (or (plist-get order :ref) "--"))))
+		    (emacs (concat invocation-directory invocation-name))
+		    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+					  "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+		    ((require 'elpaca))
+		    ((elpaca-generate-autoloads "elpaca" repo)))
+	      (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+	    (error "%s" (with-current-buffer buffer (buffer-string))))
+	((error) (warn "%s" err) (delete-directory repo 'recursive))))
     (unless (require 'elpaca-autoloads nil t)
       (require 'elpaca)
       (elpaca-generate-autoloads "elpaca" repo)
@@ -524,26 +521,26 @@ Now
   ;; Block until current queue processed.
   (elpaca-wait)
 
-  ;; Workaround to load development version of seq
-  (defun +elpaca-unload-seq (e) "Unload seq before continuing the elpaca build, then continue to build the recipe E."
-    (and (featurep 'seq) (unload-feature 'seq t))
-    (elpaca--continue-build e))
-  (elpaca `(seq :build ,(append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
-                                            elpaca--pre-built-steps
-                                          elpaca-build-steps))
-                               (list '+elpaca-unload-seq 'elpaca--activate-package))))
+  ;; ;; Workaround to load development version of seq
+  ;; (defun +elpaca-unload-seq (e) "Unload seq before continuing the elpaca build, then continue to build the recipe E."
+  ;;   (and (featurep 'seq) (unload-feature 'seq t))
+  ;;   (elpaca--continue-build e))
+  ;; (elpaca `(seq :build ,(append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
+  ;;                                           elpaca--pre-built-steps
+  ;;                                         elpaca-build-steps))
+  ;;                              (list '+elpaca-unload-seq 'elpaca--activate-package))))
 
-  (use-package eldoc
-    :preface
-    ;; avoid loading of built-in eldoc, see https://github.com/progfolio/elpaca/issues/236#issuecomment-1879838229
-    (unload-feature 'eldoc t)
-    (setq custom-delayed-init-variables '())
-    (defvar global-eldoc-mode nil)
-    :demand t
-    :config
-    (global-eldoc-mode))
+  ;; (use-package eldoc
+  ;;   :preface
+  ;;   ;; avoid loading of built-in eldoc, see https://github.com/progfolio/elpaca/issues/236#issuecomment-1879838229
+  ;;   (unload-feature 'eldoc t)
+  ;;   (setq custom-delayed-init-variables '())
+  ;;   (defvar global-eldoc-mode nil)
+  ;;   :demand t
+  ;;   :config
+  ;;   (global-eldoc-mode))
 
-  (elpaca-wait)
+  ;; (elpaca-wait)
 #+end_src
 
 * Misc Settings
@@ -589,30 +586,45 @@ This is the "old" way, I've since decided to try a package to manage fonts.
 
 #+begin_src emacs-lisp
   (use-package fontaine
-    :demand t
-    :init
-    (setq fontaine-presets
-          '((regular ::default-family "iA Writer Mono V Text";;  "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
-                     :default-weight regular
-                     :default-height 130
-                     :fixed-pitch-family nil ; falls back to :default-family
-                     :fixed-pitch-weight nil ; falls back to :default-weight
-                     :fixed-pitch-height 1.0
-                     :fixed-pitch-serif-family nil ; falls back to :default-family
-                     :fixed-pitch-serif-weight nil ; falls back to :default-weight
-                     :fixed-pitch-serif-height 1.0
-                     ;; :variable-pitch-family "ETBembo"
-                     :variable-pitch-family "iA Writer Duo V Text" ;;"CaskaydiaCove Nerd Font Propo"
-                     :variable-pitch-weight nil
-                     :variable-pitch-height 1.2
-                     :bold-family nil ; use whatever the underlying face has
-                     :bold-weight bold
-                     :italic-family nil
-                     :italic-slant italic
-                     :line-spacing nil)))
+    :hook
+    ((after-init . fontaine-mode)
+     (after-init . (lambda ()
+                     ;; Set last preset or fall back to desired style from `fontaine-presets'.
+                     (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))))
     :config
-    (fontaine-set-preset 'regular)
-    )
+    (setq fontaine-presets
+          '((regular
+             :default-family "Maple Mono NF"
+             :default-height 130
+             ))))
+#+end_src
+
+#+begin_src emacs-lisp
+  ;; (use-package fontaine
+  ;;   :demand t
+  ;;   :init
+  ;;   (setq fontaine-presets
+  ;;         '((regular ::default-family "iA Writer Mono V Text";;  "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
+  ;;                    :default-weight regular
+  ;;                    :default-height 130
+  ;;                    :fixed-pitch-family nil ; falls back to :default-family
+  ;;                    :fixed-pitch-weight nil ; falls back to :default-weight
+  ;;                    :fixed-pitch-height 1.0
+  ;;                    :fixed-pitch-serif-family nil ; falls back to :default-family
+  ;;                    :fixed-pitch-serif-weight nil ; falls back to :default-weight
+  ;;                    :fixed-pitch-serif-height 1.0
+  ;;                    ;; :variable-pitch-family "ETBembo"
+  ;;                    :variable-pitch-family "iA Writer Duo V Text" ;;"CaskaydiaCove Nerd Font Propo"
+  ;;                    :variable-pitch-weight nil
+  ;;                    :variable-pitch-height 1.2
+  ;;                    :bold-family nil ; use whatever the underlying face has
+  ;;                    :bold-weight bold
+  ;;                    :italic-family nil
+  ;;                    :italic-slant italic
+  ;;                    :line-spacing nil)))
+  ;;   :config
+  ;;   (fontaine-set-preset 'regular)
+  ;;   )
 #+end_src
 
 ** Theme
@@ -1129,9 +1141,109 @@ This needs to match general eshells (=*eshell*=) and project specific eshells (=
 #+end_src
 
 
+
 * Chezmoi?
 #+begin_src emacs-lisp
   (use-package chezmoi
     :ensure (:host github :repo "tuh8888/chezmoi.el"))
 
+#+end_src
+
+* GPTel config
+#+begin_src emacs-lisp
+  (use-package gptel
+    :config
+    ;; let's add out tooling
+    (gptel-make-tool
+     :name "create_file"                    ; javascript-style  snake_case name
+     :function (lambda (path filename content)   ; the function that runs
+                 (let ((full-path (expand-file-name filename path)))
+                   (with-temp-buffer
+                     (insert content)
+                     (write-file full-path))
+                   (format "Created file %s in %s" filename path)))
+     :description "Create a new file with the specified content"
+     :args (list '(:name "path"             ; a list of argument specifications
+                         :type string
+                         :description "The directory where to create the file")
+                 '(:name "filename"
+                         :type string
+                         :description "The name of the file to create")
+                 '(:name "content"
+                         :type string
+                         :description "The content to write to the file"))
+     :category "filesystem")                ; An arbitrary label for grouping
+
+     :custom
+     (gptel-model 'anthropic/claude-3.7-sonnet)
+     (gptel-backend
+      (gptel-make-openai "OpenRouter"
+        :host "openrouter.ai"
+        :endpoint "/api/v1/chat/completions"
+        :stream t
+        :key (plist-get (nth 0 (auth-source-search :host "openrouter.ai")) :secret)
+        :models '(anthropic/claude-3-5-haiku
+                  anthropic/claude-3-5-haiku-20241022
+                  anthropic/claude-3-haiku
+                  anthropic/claude-3-haiku-20240307
+                  anthropic/claude-3-opus
+                  anthropic/claude-3-sonnet
+                  anthropic/claude-3.5-sonnet
+                  anthropic/claude-3.5-sonnet:beta
+                  anthropic/claude-3.7-sonnet))))
+
+  ;; Saving these here for now, need to work on wiring things in with JIRA and all
+
+  ;; (gptel-make-tool
+  ;;  :name "create_file"                    ; javascript-style  snake_case name
+  ;;  :function (lambda (path filename content)   ; the function that runs
+  ;;              (let ((full-path (expand-file-name filename path)))
+  ;;                (with-temp-buffer
+  ;;                  (insert content)
+  ;;                  (write-file full-path))
+  ;;                (format "Created file %s in %s" filename path)))
+  ;;  :description "Create a new file with the specified content"
+  ;;  :args (list '(:name "path"             ; a list of argument specifications
+  ;; 	       :type string
+  ;; 	       :description "The directory where to create the file")
+  ;;              '(:name "filename"
+  ;; 	       :type string
+  ;; 	       :description "The name of the file to create")
+  ;;              '(:name "content"
+  ;; 	       :type string
+  ;; 	       :description "The content to write to the file"))
+  ;;  :category "filesystem")                ; An arbitrary label for grouping
+
+  ;; (gptel-make-tool
+  ;;  :name "read_buffer"                    ; javascript-style snake_case name
+  ;;  :function (lambda (buffer)                  ; the function that will run
+  ;;              (unless (buffer-live-p (get-buffer buffer))
+  ;;                (error "error: buffer %s is not live." buffer))
+  ;;              (with-current-buffer  buffer
+  ;;                (buffer-substring-no-properties (point-min) (point-max))))
+  ;;  :description "return the contents of an emacs buffer"
+  ;;  :args (list '(:name "buffer"
+  ;;                :type string            ; :type value must be a symbol
+  ;;                :description "the name of the buffer whose contents are to be retrieved"))
+  ;;  :category "emacs")                     ; An arbitrary label for grouping
+
+  ;; (gptel-make-tool
+  ;;  :name "get-ticket-summary"
+  ;;  :function (lambda (ticket)
+  ;;              (cdr (assoc 'summary (cdr (assoc 'fields (jiralib-call "getIssue" nil ticket))))))
+  ;;  :description "Retrieve the summary of the specified ticket"
+  ;;  :args (list '(:name "ticket"
+  ;;                      :type string
+  ;;                      :description "The id of the specified ticket"))
+  ;;  :category "jira")
+
+  ;; (gptel-make-tool
+  ;;  :name "get-ticket-description"
+  ;;  :function (lambda (ticket)
+  ;;              (cdr (assoc 'description (cdr (assoc 'fields (jiralib-call "getIssue" nil ticket))))))
+  ;;  :description "Retrieve the description of the specified ticket"
+  ;;  :args (list '(:name "ticket"
+  ;;                      :type string
+  ;;                      :description "The id of the specified ticket"))
+  ;;  :category "jira")
 #+end_src
