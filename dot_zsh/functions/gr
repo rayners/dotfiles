@@ -1,0 +1,7 @@
+# git root
+if [[ ! -d '.git' ]]; then
+    git rev-parse --show-cdup >/dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+        cd $(git rev-parse --show-cdup)
+    fi
+fi

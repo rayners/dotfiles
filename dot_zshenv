@@ -1,0 +1,129 @@
+# Used for reporting how load loading takes
+zmodload zsh/datetime
+start=$EPOCHREALTIME
+
+autoload -Uz colors && colors
+
+export ZSH_DISABLE_COMPFIX=true
+export ZSH_DIR=$HOME/.zsh
+
+# Set XDG Base Directory specification variables if not already set
+# See: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+
+# Set default profile, use iTerm profile if available (macOS specific)
+export ZSH_PROFILE=${${ITERM_PROFILE:=default}:l}
+[[ -f "${ZSH_DIR}/profiles/${ZSH_PROFILE}.env.zsh" ]] && source "${ZSH_DIR}/profiles/${ZSH_PROFILE}.env.zsh"
+
+# Set up platform-agnostic paths
+path=(
+  "$HOME/bin"
+  "$HOME/.local/bin"
+  "$HOME/.claude/local"
+  "/usr/local/bin"
+  "/usr/local/sbin"
+  $path
+)
+
+# Export updated PATH
+export PATH
+
+# Terminal colors
+export CLICOLOR=1
+export LSCOLORS=Gxfxcxdxbxegedabagacad
+
+# Platform-specific environment settings
+case "$(uname -s)" in
+  Darwin)
+    # macOS-specific settings
+    
+    # Java settings if available
+    if command -v /usr/libexec/java_home &>/dev/null; then
+      # Uncomment and modify these as needed
+      # export JAVA_8_HOME=`/usr/libexec/java_home -v1.8 2>/dev/null`
+      # export JAVA_7_HOME=`/usr/libexec/java_home -v1.7 2>/dev/null`
+      
+      # Set JAVA_HOME to Java 8 if available
+      if [[ -n "$JAVA_8_HOME" ]]; then
+        export JAVA_HOME=$JAVA_8_HOME
+      fi
+    fi
+    
+    # Tomcat settings
+    if [[ -d "/usr/local/opt/tomcat7/libexec" ]]; then
+      export CATALINA_7_HOME="/usr/local/opt/tomcat7/libexec"
+      export CATALINA_HOME=$CATALINA_7_HOME
+    fi
+    
+    # Homebrew Cask options (macOS specific)
+    export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
+    
+    # PhantomJS bin path
+    if [[ -f "/usr/local/bin/phantomjs" ]]; then
+      export PHANTOMJS_BIN="/usr/local/bin/phantomjs"
+    elif [[ -f "$HOME/.local/bin/phantomjs" ]]; then
+      export PHANTOMJS_BIN="$HOME/.local/bin/phantomjs"
+    fi
+    ;;
+    
+  Linux)
+    # Linux-specific settings
+    
+    # Set JAVA_HOME on Linux if available
+    if [[ -d "/usr/lib/jvm/java-8-openjdk" ]]; then
+      export JAVA_8_HOME="/usr/lib/jvm/java-8-openjdk"
+      export JAVA_HOME=$JAVA_8_HOME
+    elif [[ -d "/usr/lib/jvm/java-8-oracle" ]]; then
+      export JAVA_8_HOME="/usr/lib/jvm/java-8-oracle"
+      export JAVA_HOME=$JAVA_8_HOME
+    fi
+    
+    # Tomcat settings for Linux
+    if [[ -d "/usr/share/tomcat7" ]]; then
+      export CATALINA_7_HOME="/usr/share/tomcat7"
+      export CATALINA_HOME=$CATALINA_7_HOME
+    elif [[ -d "/opt/tomcat" ]]; then
+      export CATALINA_HOME="/opt/tomcat"
+    fi
+    
+    # PhantomJS bin path for Linux
+    if [[ -f "/usr/bin/phantomjs" ]]; then
+      export PHANTOMJS_BIN="/usr/bin/phantomjs"
+    elif [[ -f "/usr/local/bin/phantomjs" ]]; then
+      export PHANTOMJS_BIN="/usr/local/bin/phantomjs"
+    elif [[ -f "$HOME/.local/bin/phantomjs" ]]; then
+      export PHANTOMJS_BIN="$HOME/.local/bin/phantomjs"
+    fi
+    ;;
+esac
+
+# Java and Maven options (platform-agnostic)
+export JAVA_OPTS="-Xms1024m -Xmx2048m -XX:MaxPermSize=512m"
+export MAVEN_OPTS="-Xmx1024m -DjasmineTimeout=1200 -XX:MaxPermSize=256m"
+
+# NVM directory
+export NVM_DIR="$HOME/.nvm"
+
+# Less colors for man pages (platform-agnostic)
+export LESS_TERMCAP_mb=$'\e[01;31m'       # begin blinking
+export LESS_TERMCAP_md=$'\e[01;38;5;74m'  # begin bold
+export LESS_TERMCAP_me=$'\e[0m'           # end mode
+export LESS_TERMCAP_se=$'\e[0m'           # end standout-mode
+export LESS_TERMCAP_so=$'\e[38;5;246m'    # begin standout-mode - info box
+export LESS_TERMCAP_ue=$'\e[0m'           # end underline
+export LESS_TERMCAP_us=$'\e[04;38;5;146m' # begin underline
+
+# Personal files - use platform-agnostic paths
+export LEDGER_FILE="$HOME/Dropbox/ledger.dat"
+
+# Source ZSH secrets file (managed by chezmoi)
+[[ -f "$ZSH_DIR/secrets.zsh" ]] && source "$ZSH_DIR/secrets.zsh"
+
+# Set terminal type if not in "dumb" mode
+[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ '
+[[ ! $TERM == "dumb" ]] && TERM=xterm-256color
+
+end=$EPOCHREALTIME
