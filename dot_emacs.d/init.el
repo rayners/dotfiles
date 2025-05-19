@@ -1,11 +1,11 @@
-(defvar elpaca-installer-version 0.7)
+(defvar elpaca-installer-version 0.10)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
+			      :ref nil :depth 1 :inherit ignore
+			      :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+			      :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
        (build (expand-file-name "elpaca/" elpaca-builds-directory))
        (order (cdr elpaca-order))
@@ -13,22 +13,22 @@
   (add-to-list 'load-path (if (file-exists-p build) build repo))
   (unless (file-exists-p repo)
     (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
+    (when (<= emacs-major-version 28) (require 'subr-x))
     (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
+	(if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+		  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+						  ,@(when-let* ((depth (plist-get order :depth)))
+						      (list (format "--depth=%d" depth) "--no-single-branch"))
+						  ,(plist-get order :repo) ,repo))))
+		  ((zerop (call-process "git" nil buffer t "checkout"
+					(or (plist-get order :ref) "--"))))
+		  (emacs (concat invocation-directory invocation-name))
+		  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+					"--eval" "(byte-recompile-directory \".\" 0 'force)")))
+		  ((require 'elpaca))
+		  ((elpaca-generate-autoloads "elpaca" repo)))
+	    (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+	  (error "%s" (with-current-buffer buffer (buffer-string))))
       ((error) (warn "%s" err) (delete-directory repo 'recursive))))
   (unless (require 'elpaca-autoloads nil t)
     (require 'elpaca)
@@ -47,26 +47,26 @@
 ;; Block until current queue processed.
 (elpaca-wait)
 
-;; Workaround to load development version of seq
-(defun +elpaca-unload-seq (e) "Unload seq before continuing the elpaca build, then continue to build the recipe E."
-  (and (featurep 'seq) (unload-feature 'seq t))
-  (elpaca--continue-build e))
-(elpaca `(seq :build ,(append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
-                                          elpaca--pre-built-steps
-                                        elpaca-build-steps))
-                             (list '+elpaca-unload-seq 'elpaca--activate-package))))
+;; ;; Workaround to load development version of seq
+;; (defun +elpaca-unload-seq (e) "Unload seq before continuing the elpaca build, then continue to build the recipe E."
+;;   (and (featurep 'seq) (unload-feature 'seq t))
+;;   (elpaca--continue-build e))
+;; (elpaca `(seq :build ,(append (butlast (if (file-exists-p (expand-file-name "seq" elpaca-builds-directory))
+;;                                           elpaca--pre-built-steps
+;;                                         elpaca-build-steps))
+;;                              (list '+elpaca-unload-seq 'elpaca--activate-package))))
 
-(use-package eldoc
-  :preface
-  ;; avoid loading of built-in eldoc, see https://github.com/progfolio/elpaca/issues/236#issuecomment-1879838229
-  (unload-feature 'eldoc t)
-  (setq custom-delayed-init-variables '())
-  (defvar global-eldoc-mode nil)
-  :demand t
-  :config
-  (global-eldoc-mode))
+;; (use-package eldoc
+;;   :preface
+;;   ;; avoid loading of built-in eldoc, see https://github.com/progfolio/elpaca/issues/236#issuecomment-1879838229
+;;   (unload-feature 'eldoc t)
+;;   (setq custom-delayed-init-variables '())
+;;   (defvar global-eldoc-mode nil)
+;;   :demand t
+;;   :config
+;;   (global-eldoc-mode))
 
-(elpaca-wait)
+;; (elpaca-wait)
 
 (use-package emacs
   :ensure nil ;; no actual package involved
@@ -91,30 +91,43 @@
 (setq ring-bell-function nil)
 
 (use-package fontaine
-  :demand t
-  :init
-  (setq fontaine-presets
-        '((regular ::default-family "iA Writer Mono V Text";;  "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
-                   :default-weight regular
-                   :default-height 130
-                   :fixed-pitch-family nil ; falls back to :default-family
-                   :fixed-pitch-weight nil ; falls back to :default-weight
-                   :fixed-pitch-height 1.0
-                   :fixed-pitch-serif-family nil ; falls back to :default-family
-                   :fixed-pitch-serif-weight nil ; falls back to :default-weight
-                   :fixed-pitch-serif-height 1.0
-                   ;; :variable-pitch-family "ETBembo"
-                   :variable-pitch-family "iA Writer Duo V Text" ;;"CaskaydiaCove Nerd Font Propo"
-                   :variable-pitch-weight nil
-                   :variable-pitch-height 1.2
-                   :bold-family nil ; use whatever the underlying face has
-                   :bold-weight bold
-                   :italic-family nil
-                   :italic-slant italic
-                   :line-spacing nil)))
+  :hook
+  ((after-init . fontaine-mode)
+   (after-init . (lambda ()
+                   ;; Set last preset or fall back to desired style from `fontaine-presets'.
+                   (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular)))))
   :config
-  (fontaine-set-preset 'regular)
-  )
+  (setq fontaine-presets
+        '((regular
+           :default-family "Maple Mono NF"
+           :default-height 130
+           ))))
+
+;; (use-package fontaine
+;;   :demand t
+;;   :init
+;;   (setq fontaine-presets
+;;         '((regular ::default-family "iA Writer Mono V Text";;  "Cascadia Code PL";;:default-family "JetBrainsMono Nerd Font Mono"
+;;                    :default-weight regular
+;;                    :default-height 130
+;;                    :fixed-pitch-family nil ; falls back to :default-family
+;;                    :fixed-pitch-weight nil ; falls back to :default-weight
+;;                    :fixed-pitch-height 1.0
+;;                    :fixed-pitch-serif-family nil ; falls back to :default-family
+;;                    :fixed-pitch-serif-weight nil ; falls back to :default-weight
+;;                    :fixed-pitch-serif-height 1.0
+;;                    ;; :variable-pitch-family "ETBembo"
+;;                    :variable-pitch-family "iA Writer Duo V Text" ;;"CaskaydiaCove Nerd Font Propo"
+;;                    :variable-pitch-weight nil
+;;                    :variable-pitch-height 1.2
+;;                    :bold-family nil ; use whatever the underlying face has
+;;                    :bold-weight bold
+;;                    :italic-family nil
+;;                    :italic-slant italic
+;;                    :line-spacing nil)))
+;;   :config
+;;   (fontaine-set-preset 'regular)
+;;   )
 
 ;; (use-package ef-themes
 ;;   :init
@@ -472,3 +485,22 @@
 
 (use-package chezmoi
   :ensure (:host github :repo "tuh8888/chezmoi.el"))
+
+(use-package gptel
+  :custom
+  (gptel-model 'anthropic/claude-3.7-sonnet)
+  (gptel-backend
+   (gptel-make-openai "OpenRouter"
+     :host "openrouter.ai"
+     :endpoint "/api/v1/chat/completions"
+     :stream t
+     :key (plist-get (nth 0 (auth-source-search :host "openrouter.ai")) :secret) ;; "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"
+     :models '(anthropic/claude-3-5-haiku
+               anthropic/claude-3-5-haiku-20241022
+               anthropic/claude-3-haiku
+               anthropic/claude-3-haiku-20240307
+               anthropic/claude-3-opus
+               anthropic/claude-3-sonnet
+               anthropic/claude-3.5-sonnet
+               anthropic/claude-3.5-sonnet:beta
+               anthropic/claude-3.7-sonnet))))
