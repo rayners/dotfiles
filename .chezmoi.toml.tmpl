@@ -87,3 +87,42 @@
     zsh_syntax_highlighting = "/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
     {{- end }}
 {{- end }}
+
+[data.fonts]
+    # Primary monospace font for terminals and code
+    monospace = "JetBrainsMono Nerd Font"
+    monospace_size = 14
+    monospace_ligatures = true
+    
+    # UI font for applications
+    ui = "SF Pro"
+    ui_size = 12
+    
+    # Fallback monospace fonts
+    fallback_monospace = ["Fira Code", "Menlo", "Monaco", "DejaVu Sans Mono"]
+
+[data.fonts.emacs]
+    # Emacs-specific font settings
+    default_height = 140  # Size 14 * 10
+    variable_pitch = "SF Pro"
+    fixed_pitch = "JetBrainsMono Nerd Font"
+    
+# Map display names to homebrew cask names for macOS installation
+[data.fonts.homebrew_mapping]
+    "JetBrainsMono Nerd Font" = "font-jetbrains-mono-nerd-font"
+    "Fira Code" = "font-fira-code"
+    "Cascadia Code" = "font-cascadia-code"
+    "DejaVu Sans Mono" = "font-dejavu-sans-mono-nerd-font"
+    "Hack Nerd Font" = "font-hack-nerd-font"
+    "Source Code Pro" = "font-source-code-pro"
+    "Ubuntu Mono" = "font-ubuntu-mono"
+    "IBM Plex Mono" = "font-ibm-plex-mono"
+    "Iosevka" = "font-iosevka"
+    "Inconsolata" = "font-inconsolata"
+    "Droid Sans Mono" = "font-droid-sans-mono-nerd-font"
+    "Anonymous Pro" = "font-anonymous-pro"
+    # System fonts (don't need to be installed)
+    # "SF Mono" = ""
+    # "Menlo" = ""
+    # "Monaco" = ""
+    # "Courier" = ""
