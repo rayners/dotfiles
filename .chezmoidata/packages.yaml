@@ -8,6 +8,7 @@ packages:
     - jq
     - notmuch
     - ripgrep
+    - uv
     - zoxide
     - zsh
     - zsh-syntax-highlighting
