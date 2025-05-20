@@ -1,0 +1,64 @@
+# vim:fileencoding=utf-8:foldmethod=marker
+
+#: Fonts {{{
+
+font_family      {{ .fonts.monospace }}
+bold_font        auto
+italic_font      auto
+bold_italic_font auto
+
+font_size {{ .fonts.monospace_size }}.0
+
+{{ if .fonts.monospace_ligatures }}
+disable_ligatures never
+{{ else }}
+disable_ligatures always
+{{ end }}
+
+#: }}}
+
+#: Cursor customization {{{
+
+cursor_shape underline
+
+#: }}}
+
+#: Mouse {{{
+
+allow_remote_control yes
+
+#: }}}
+
+#: Window layout {{{
+
+hide_window_decorations titlebar-and-corners
+
+#: }}}
+
+#: Tab bar {{{
+
+tab_bar_edge top
+tab_bar_style powerline
+
+#: }}}
+
+#: Color scheme {{{
+
+background_opacity 0.75
+
+#: }}}
+
+#: Advanced {{{
+
+exe_search_path +/usr/local/bin
+
+#: }}}
+
+#: Keyboard shortcuts {{{
+
+map f5 load_config_file
+map f1 select_tab
+# my fancy script to output the needed OTP to the current kitty window
+map f10 launch --type=background --allow-remote-control aws-otp @active-kitty-window-id
+
+#: }}}
