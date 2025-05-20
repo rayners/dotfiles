@@ -1,0 +1,77 @@
+#!/bin/bash
+# This script installs fonts for macOS listed in chezmoi.toml
+# This file will be run whenever the fonts configuration changes
+# {{ $fontHash := dict "monospace" .fonts.monospace "fallbacks" .fonts.fallback_monospace "mapping" .fonts.homebrew_mapping | toJson | sha256sum }}
+# Hash: {{ $fontHash }}
+
+{{ if ne .chezmoi.os "darwin" -}}
+# Not on macOS, exit silently
+exit 0
+{{ else -}}
+set -euo pipefail
+
+echo "🔤 Installing required fonts for your configuration..."
+
+# Check if Homebrew is installed
+if ! command -v brew &> /dev/null; then
+    echo "⚠️ Homebrew is not installed. Please install Homebrew first."
+    echo "   Visit https://brew.sh for installation instructions."
+    exit 1
+fi
+
+# Make sure homebrew-cask-fonts is tapped
+if ! brew tap | grep -q "homebrew/cask-fonts"; then
+    echo "🍺 Tapping homebrew/cask-fonts..."
+    brew tap homebrew/cask-fonts
+fi
+
+# Function to install a font if it has a mapping and isn't already installed
+install_font_if_needed() {
+    local font_name="$1"
+    
+    # Skip if font name is empty
+    if [[ -z "$font_name" ]]; then
+        return
+    fi
+    
+    # Check if we have a mapping for this font
+    local cask_name="{{ get .fonts.homebrew_mapping "$font_name" }}"
+    if [[ -z "$cask_name" ]]; then
+        # Check if this is likely a system font (common system fonts don't need installation)
+        if [[ "$font_name" == "SF Pro" ]] || [[ "$font_name" == "SF Mono" ]] || 
+           [[ "$font_name" == "Menlo" ]] || [[ "$font_name" == "Monaco" ]] || 
+           [[ "$font_name" == "Helvetica" ]] || [[ "$font_name" == "Arial" ]]; then
+            echo "✓ Font '$font_name' is a system font, no need to install"
+        else
+            echo "⚠️ No homebrew mapping for font '$font_name', skipping installation"
+            echo "   Add it to [data.fonts.homebrew_mapping] in chezmoi.toml if needed"
+        fi
+        return
+    fi
+    
+    echo "🔍 Checking for font: $font_name"
+    
+    # Check if the cask is already installed
+    if brew list --cask "$cask_name" &>/dev/null; then
+        echo "✓ Font '$font_name' is already installed"
+    else
+        echo "📥 Installing font: $font_name via $cask_name"
+        brew install --cask "$cask_name"
+        if [ $? -eq 0 ]; then
+            echo "✅ Successfully installed $font_name"
+        else
+            echo "⚠️ Failed to install $font_name"
+        fi
+    fi
+}
+
+# Install primary monospace font
+install_font_if_needed "{{ .fonts.monospace }}"
+
+# Install fallback monospace fonts
+{{ range .fonts.fallback_monospace -}}
+install_font_if_needed "{{ . }}"
+{{ end -}}
+
+echo "✨ Font installation completed!"
+{{ end -}}
