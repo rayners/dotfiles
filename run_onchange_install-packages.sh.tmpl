@@ -40,7 +40,7 @@ EOF
 
 {{ else -}}
 # Using Homebrew on macOS
-brew bundle --no-lock --file=/dev/stdin <<EOF
+brew bundle --file=/dev/stdin <<EOF
 # Install common packages
 {{ range .packages.common -}}
 brew {{ . | quote }}
