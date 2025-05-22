@@ -6,7 +6,7 @@
 {{- if eq $tool "macports" }}
 sudo port -F - <<EOF
 {{- else }}
-brew bundle --no-lock --file=/dev/stdin <<EOF
+brew bundle --file=/dev/stdin <<EOF
 {{ end -}}
 {{ range .packages.darwin.common -}}
 {{-  if eq $tool "macports" }}
