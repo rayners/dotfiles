@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8:foldmethod=marker
 
-#: Fonts {{{
+#: Fonts {{ "{{{" }}
 
 font_family      {{ .fonts.monospace }}
 bold_font        auto
@@ -15,50 +15,50 @@ disable_ligatures never
 disable_ligatures always
 {{ end }}
 
-#: }}}
+#: {{ "}}}" }}
 
-#: Cursor customization {{{
+#: Cursor customization {{ "{{{" }}
 
 cursor_shape underline
 
-#: }}}
+#: {{ "}}}" }}
 
-#: Mouse {{{
+#: Mouse {{ "{{{" }}
 
 allow_remote_control yes
 
-#: }}}
+#: {{ "}}}" }}
 
-#: Window layout {{{
+#: Window layout {{ "{{{" }}
 
 hide_window_decorations titlebar-and-corners
 
-#: }}}
+#: {{ "}}}" }}
 
-#: Tab bar {{{
+#: Tab bar {{ "{{{" }}
 
 tab_bar_edge top
 tab_bar_style powerline
 
-#: }}}
+#: {{ "}}}" }}
 
-#: Color scheme {{{
+#: Color scheme {{ "{{{" }}
 
 background_opacity 0.75
 
-#: }}}
+#: {{ "}}}" }}
 
-#: Advanced {{{
+#: Advanced {{ "{{{" }}
 
 exe_search_path +/usr/local/bin
 
-#: }}}
+#: {{ "}}}" }}
 
-#: Keyboard shortcuts {{{
+#: Keyboard shortcuts {{ "{{{" }}
 
 map f5 load_config_file
 map f1 select_tab
 # my fancy script to output the needed OTP to the current kitty window
 map f10 launch --type=background --allow-remote-control aws-otp @active-kitty-window-id
 
-#: }}}
+#: {{ "}}}" }}
