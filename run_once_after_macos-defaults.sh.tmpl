@@ -1,0 +1,39 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+
+echo "🍏 Setting macOS defaults..."
+
+# General UI & System
+defaults write NSGlobalDomain NSAutomaticWindowSpreadsheetTracking -bool false # Disable automatically rearrange Spaces based on most recent use
+defaults write com.apple.CrashReporter DialogType -string "none" # Disable crash reporter
+
+# Dock
+defaults write com.apple.dock autohide -bool true # Auto-hide the Dock
+defaults write com.apple.dock autohide-delay -float 0 # Remove the autohide delay
+defaults write com.apple.dock autohide-time-modifier -float 0.4 # Adjust autohide animation speed
+defaults write com.apple.dock show-recents -bool false # Don't show recent applications in Dock
+defaults write com.apple.dock orientation -string "left" # Set Dock position to left
+
+# Finder
+defaults write com.apple.finder ShowPathbar -bool true # Show path bar
+defaults write com.apple.finder ShowStatusBar -bool true # Show status bar
+defaults write com.apple.finder AppleShowAllFiles -bool true # Show hidden files (equivalent to Cmd + Shift + .)
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv" # Set default view to List View (Other options: icnv, clmv, Flwv)
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+
+# Save file pieces
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+
+# stop it with the .DS_Store files
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+echo "✅ macOS defaults set."
+
+# Apply changes that require a restart of specific apps
+killall Dock &> /dev/null
+killall Finder &> /dev/null
+
+{{- end -}}

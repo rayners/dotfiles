@@ -19,12 +19,6 @@ if ! command -v brew &> /dev/null; then
     exit 1
 fi
 
-# Make sure homebrew-cask-fonts is tapped
-if ! brew tap | grep -q "homebrew/cask-fonts"; then
-    echo "🍺 Tapping homebrew/cask-fonts..."
-    brew tap homebrew/cask-fonts
-fi
-
 # Function to install a font if it has a mapping and isn't already installed
 install_font_if_needed() {
     local font_name="$1"

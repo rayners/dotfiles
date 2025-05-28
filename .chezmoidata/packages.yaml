@@ -8,6 +8,7 @@ packages:
     - jq
     - notmuch
     - ripgrep
+    - tmux
     - uv
     - zoxide
     - zsh
@@ -23,6 +24,7 @@ packages:
       - fd
       - git-delta
       - powerlevel10k
+      - reattach-to-user-namespace
       - zsh-completions
     
     # Homebrew-specific packages

@@ -30,7 +30,7 @@ source $ZSH_DIR/aliases.zsh
 source $ZSH_DIR/history.zsh
 source $ZSH_DIR/fzf.zsh
 source $ZSH_DIR/directories.zsh
-source $ZSH_DIR/rbenv.zsh
+source $ZSH_DIR/mise.zsh
 
 # Set up function path - platform-agnostic approach
 fpath=(
@@ -63,13 +63,7 @@ zstyle ':completion:*' cache-path "$ZSH_DIR/cache"
 
 # Ruby version manager support is now in rbenv.zsh
 
-# Load NVM configuration
-source $ZSH_DIR/nvm.zsh
-
-# Initialize pyenv if available
-if has_command pyenv; then 
-  eval "$(pyenv init -)"; 
-fi
+# Programming environment management (mise, rbenv, nvm) is now handled in mise.zsh
 
 # Keyboard settings
 bindkey -e
@@ -174,3 +168,5 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+source /Users/davidraynes/.config/op/plugins.sh
