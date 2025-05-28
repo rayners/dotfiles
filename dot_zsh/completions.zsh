@@ -73,20 +73,39 @@ zstyle ':completion:*:history-words' menu yes
 zstyle ':completion::*:(-command-|export):*' fake-parameters ${${${_comps[(I)-value-*]#*,}%%,*}:#-*-}
 
 # Git
-zstyle ':completion:*:*:git:*' script ~/.zsh/functions/git-completion.bash
-if [[ -f ~/.zsh/functions/git-completion.bash ]]; then
-  # The git-completion.bash file comes with git source code
-  # and is sometimes installed with git
-  zstyle ':completion:*:*:git:*' script ~/.zsh/functions/git-completion.bash
-  # Separate git commands by groups
-  zstyle ':completion:*:*:git:*' group-order \
-    'main commands' \
-    'branch commands' \
-    'remote commands' \
-    'third-party commands' \
-    'common commands' \
-    'all commands'
-fi
+# Find git-completion.bash in various possible locations
+GIT_COMPLETION_PATHS=(
+  ~/.zsh/functions/git-completion.bash                 # User directory
+  /usr/local/share/zsh/site-functions/git-completion.bash  # Homebrew (Intel Mac)
+  /opt/homebrew/share/zsh/site-functions/git-completion.bash  # Homebrew (Apple Silicon)
+  /usr/share/zsh/site-functions/git-completion.bash     # Linux
+  /etc/zsh_completion.d/git-completion.bash            # Some Linux distros
+)
+
+for git_completion in "${GIT_COMPLETION_PATHS[@]}"; do
+  if [[ -f "$git_completion" ]]; then
+    zstyle ':completion:*:*:git:*' script "$git_completion"
+    
+    # Define the function that bridges bash completion to zsh
+    __git_zsh_bash_func () {
+      emulate -L ksh
+      local command=$1
+      shift
+      command git $command "$@"
+    }
+    
+    break
+  fi
+done
+
+# Separate git commands by groups
+zstyle ':completion:*:*:git:*' group-order \
+  'main commands' \
+  'branch commands' \
+  'remote commands' \
+  'third-party commands' \
+  'common commands' \
+  'all commands'
 
 # Populate hostname completion
 zstyle -e ':completion:*:hosts' hosts 'reply=(
