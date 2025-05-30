@@ -69,6 +69,11 @@
     use_rbenv = {{ $use_rbenv }}
     use_pyenv = {{ $use_pyenv }}
 
+[data.aerospace]
+    # Private floating apps - add company-specific apps here locally
+    # Example: private_floating_apps = ["com.company.app", "com.other.tool"]
+    private_floating_apps = []
+
 [diff]
     command = "delta"
     pager = "delta"

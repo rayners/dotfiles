@@ -218,15 +218,16 @@ automatically-unhide-macos-hidden-apps = false
     if.app-id = 'us.zoom.xos'
     run = 'layout floating'
 
+{{- range .aerospace.private_floating_apps }}
 [[on-window-detected]]
-    if.app-id = 'com.banyan.app'
+    if.app-id = '{{ . }}'
     run = 'layout floating'
 
-# - us.zoom.xos
-#   - com.banyan.app
-#   - com.apple.systempreferences
-#   - com.1password.1password
-#   - com.amazon.workspaces
-#   - com.raycast.macos
-#   - cc.ffitch.shottr
-#   - com.jordanbaird.Ice
+{{- end }}
+# Common floating apps:
+# - us.zoom.xos (Zoom)
+# - com.apple.systempreferences (System Preferences)
+# - com.1password.1password (1Password)
+# - com.raycast.macos (Raycast)
+# - cc.ffitch.shottr (Shottr)
+# - com.jordanbaird.Ice (Ice)
