@@ -8,6 +8,7 @@ alias gpuu="git push -u origin \`git current-branch\`"
 alias gpf="git push --force-with-lease"
 alias goops="git oops"
 alias master="git checkout master"
+alias ginfo="git current-info"  # Show current branch or ticket number
 
 # Text search - prefer silversearcher-ag if available
 if has_command ag; then
@@ -67,5 +68,13 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-# Claude CLI
-alias claude="$HOME/.claude/local/claude"
+# Editor aliases - prefer neovim if available
+if has_command nvim; then
+  alias vim="nvim"
+  alias vi="nvim"
+fi
+
+# Claude CLI - only alias if the binary exists
+if [[ -f "$HOME/.claude/local/claude" ]]; then
+  alias claude="$HOME/.claude/local/claude"
+fi

@@ -6,6 +6,7 @@ packages:
     - fzf
     - git
     - jq
+    - neovim
     - notmuch
     - ripgrep
     - tmux
