@@ -218,7 +218,13 @@ automatically-unhide-macos-hidden-apps = false
     if.app-id = 'us.zoom.xos'
     run = 'layout floating'
 
-{{- range .aerospace.private_floating_apps }}
+{{- range .window_managers.common_floating_apps }}
+[[on-window-detected]]
+    if.app-id = '{{ . }}'
+    run = 'layout floating'
+
+{{- end }}
+{{- range .window_managers.private_floating_apps }}
 [[on-window-detected]]
     if.app-id = '{{ . }}'
     run = 'layout floating'

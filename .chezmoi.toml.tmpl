@@ -69,7 +69,17 @@
     use_rbenv = {{ $use_rbenv }}
     use_pyenv = {{ $use_pyenv }}
 
-[data.aerospace]
+[data.window_managers]
+    # Common floating apps shared across aerospace and amethyst
+    common_floating_apps = [
+        "us.zoom.xos",                    # Zoom
+        "com.apple.systempreferences",   # System Preferences  
+        "com.1password.1password",       # 1Password
+        "com.raycast.macos",             # Raycast
+        "cc.ffitch.shottr",              # Shottr
+        "com.jordanbaird.Ice"            # Ice
+    ]
+    
     # Private floating apps - add company-specific apps here locally
     # Example: private_floating_apps = ["com.company.app", "com.other.tool"]
     private_floating_apps = []

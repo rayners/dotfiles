@@ -259,14 +259,12 @@ window-minimum-width: 0
 
 # List of bundle identifiers for applications to either be automatically floating or automatically tiled based on floating-is-blacklist (default []).
 floating:
-  - us.zoom.xos
-  - com.banyan.app
-  - com.apple.systempreferences
-  - com.1password.1password
-  - com.amazon.workspaces
-  - com.raycast.macos
-  - cc.ffitch.shottr
-  - com.jordanbaird.Ice
+{{- range .window_managers.common_floating_apps }}
+  - {{ . }}
+{{- end }}
+{{- range .window_managers.private_floating_apps }}
+  - {{ . }}
+{{- end }}
 
 # Boolean flag determining behavior of the floating list. true if the applications should be floating and all others tiled. false if the applications should be tiled and all others floating (default true).
 floating-is-blacklist: true
