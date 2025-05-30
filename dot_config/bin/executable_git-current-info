@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Git current info script - displays branch name or ticket number if available
+# Usage: git-current-info [directory]
+# Can be used as: git current-info
+
+target_dir="${1:-.}"
+
+# Check if we're in a git repository
+if ! git -C "$target_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "NO GIT"
+    exit 0
+fi
+
+# Get the current branch name
+branch=$(git -C "$target_dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+if [ -z "$branch" ]; then
+    echo "NO GIT"
+    exit 0
+fi
+
+# Extract ticket number if it exists (e.g., PROJ-1234 from feature/PROJ-1234-some-description)
+ticket=$(echo "$branch" | grep -o -E '[A-Z]+-[0-9]+' | head -1)
+
+# Output ticket number if found, otherwise the full branch name
+if [ -n "$ticket" ]; then
+    echo "$ticket"
+else
+    echo "$branch"
+fi
