@@ -210,14 +210,6 @@ automatically-unhide-macos-hidden-apps = false
     up = 'volume up'
     shift-down = ['volume set 0', 'mode main']
 
-[[on-window-detected]]
-    if.app-id = 'com.1password.1password'
-    run = 'layout floating'
-
-[[on-window-detected]]
-    if.app-id = 'us.zoom.xos'
-    run = 'layout floating'
-
 {{- range .window_managers.common_floating_apps }}
 [[on-window-detected]]
     if.app-id = '{{ . }}'
