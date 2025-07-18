@@ -31,8 +31,6 @@ function extract() {
 # Find a file with a pattern in name
 function ff() { find . -type f -name "*$1*" -ls ; }
 
-# Find a directory with a pattern in name
-function fd() { find . -type d -name "*$1*" -ls ; }
 
 # Find processes by name
 function psg() { ps aux | grep "[${1[1]}]${1[2,-1]}" ; }

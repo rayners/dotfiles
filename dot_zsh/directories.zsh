@@ -47,3 +47,5 @@ fi
 # Local installation fallback
 [[ -s "$HOME/.local/share/autojump/autojump.sh" ]] && . "$HOME/.local/share/autojump/autojump.sh"
 [[ -s "$HOME/.local/share/z/z.sh" ]] && . "$HOME/.local/share/z/z.sh"
+
+eval "$(zoxide init zsh)"
