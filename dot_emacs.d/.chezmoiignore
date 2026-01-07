@@ -1,0 +1,26 @@
+# Ignore git-managed minimal-emacs.d core files
+init.el
+early-init.el
+.git
+.github
+.gitignore
+README.md
+
+# Ignore generated/package directories
+elpa/
+elpaca/
+tree-sitter/
+auto-save-list/
+autosave/
+url/
+request/
+transient/
+eln-cache/
+
+# Ignore forge database
+forge-database.sqlite
+
+# Ignore session files
+session.*
+recentf
+bookmarks
