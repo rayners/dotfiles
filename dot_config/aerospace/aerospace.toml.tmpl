@@ -1,18 +1,21 @@
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
 
-# You can use it to add commands that run after login to macOS user session.
-# 'start-at-login' needs to be 'true' for 'after-login-command' to work
-# Available commands: https://nikitabobko.github.io/AeroSpace/commands
-after-login-command = []
+# Config version for compatibility and deprecations
+# See: https://nikitabobko.github.io/AeroSpace/guide#config-version
+# Fallback value (if you omit the key): config-version = 1
+config-version = 2
 
 # You can use it to add commands that run after AeroSpace startup.
-# 'after-startup-command' is run after 'after-login-command'
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = []
 
 # Start AeroSpace at login
 start-at-login = false
+
+# Automatically reload the config when the config file is saved
+# After setting this to true, reload once manually to start the auto-reloading
+auto-reload-config = true
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -43,10 +46,25 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 # Also see: https://nikitabobko.github.io/AeroSpace/goodies#disable-hide-app
 automatically-unhide-macos-hidden-apps = false
 
-# Possible values: (qwerty|dvorak)
+# List of workspaces that should stay alive even when they contain no windows,
+# even when they are invisible.
+# Under 'config-version = 2' this is no longer inferred from the keybindings below,
+# so a workspace missing from this list disappears whenever it is empty.
+# Keep in sync with the 'workspace' bindings in [mode.main.binding].
+persistent-workspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B",
+                         "C", "D", "E", "F", "G", "I", "M", "N", "O", "P", "Q",
+                         "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+
+# A callback that runs every time binding mode changes
+# See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
+# See: https://nikitabobko.github.io/AeroSpace/commands#mode
+on-mode-changed = []
+
+focus-follows-mouse.enabled = false
+
+# Possible values: (qwerty|dvorak|colemak)
 # See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
-[key-mapping]
-    preset = 'qwerty'
+key-mapping.preset = 'qwerty'
 
 # Gaps between windows (inner-*) and between monitor edges (outer-*).
 # Possible values:
@@ -56,13 +74,26 @@ automatically-unhide-macos-hidden-apps = false
 #                 Monitor pattern is the same as for 'workspace-to-monitor-force-assignment'.
 #                 See:
 #                 https://nikitabobko.github.io/AeroSpace/guide#assign-workspaces-to-monitors
-[gaps]
-    inner.horizontal = 10
-    inner.vertical =   10
-    outer.left =       0
-    outer.bottom =     30
-    outer.top =        0
-    outer.right =      0
+gaps.inner.horizontal = 25
+gaps.inner.vertical =   25
+gaps.outer.left =       10
+gaps.outer.bottom =     30
+gaps.outer.top =        5
+gaps.outer.right =      10
+
+# Workspaces follow the "main" monitor by default, so the pinned workspaces below
+# work unchanged on the built-in display and when docked with the lid closed.
+# To split them across external monitors, fill in names from `aerospace list-monitors`
+# while docked. The trailing 'main' keeps the assignment resolvable when undocked.
+#
+# [workspace-to-monitor-force-assignment]
+#     S = ['<comms-monitor-name>', 'main']   # Slack
+#     C = ['<comms-monitor-name>', 'main']   # Claude
+#     E = ['<code-monitor-name>', 'main']    # Emacs
+#     G = ['<code-monitor-name>', 'main']    # Ghostty
+#
+# 'secondary' only matches when exactly two monitors are connected, so it does not
+# match a lid-closed setup driving two externals.
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
@@ -77,7 +108,8 @@ automatically-unhide-macos-hidden-apps = false
     # - F-keys.         f1, f2, ..., f20
     # - Special keys.   minus, equal, period, comma, slash, backslash, quote, semicolon,
     #                   backtick, leftSquareBracket, rightSquareBracket, space, enter, esc,
-    #                   backspace, tab
+    #                   backspace, tab, pageUp, pageDown, home, end, forwardDelete,
+    #                   sectionSign (ISO keyboards only, european keyboards only)
     # - Keypad special. keypadClear, keypadDecimalMark, keypadDivide, keypadEnter, keypadEqual,
     #                   keypadMinus, keypadMultiply, keypadPlus
     # - Arrows.         left, down, up, right
@@ -89,12 +121,8 @@ automatically-unhide-macos-hidden-apps = false
     # See: https://nikitabobko.github.io/AeroSpace/commands#exec-and-forget
     # You can uncomment the following lines to open up terminal with alt + enter shortcut
     # (like in i3)
-    # alt-enter = '''exec-and-forget osascript -e '
-    # tell application "Terminal"
-    #     do script
-    #     activate
-    # end tell'
-    # '''
+    # alt-enter = '''exec-and-forget osascript -e \
+    # 'tell application "Terminal" to tell (do script) to activate' '''
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
@@ -209,23 +237,33 @@ automatically-unhide-macos-hidden-apps = false
     down = 'volume down'
     up = 'volume up'
     shift-down = ['volume set 0', 'mode main']
-
 {{- range .window_managers.common_floating_apps }}
-[[on-window-detected]]
-    if.app-id = '{{ . }}'
-    run = 'layout floating'
 
+[[on-window-detected]]
+    if = 'test %{app-bundle-id} = {{ . }}'
+    run = 'layout floating'
 {{- end }}
 {{- range .window_managers.private_floating_apps }}
-[[on-window-detected]]
-    if.app-id = '{{ . }}'
-    run = 'layout floating'
 
+[[on-window-detected]]
+    if = 'test %{app-bundle-id} = {{ . }}'
+    run = 'layout floating'
 {{- end }}
-# Common floating apps:
-# - us.zoom.xos (Zoom)
-# - com.apple.systempreferences (System Preferences)
-# - com.1password.1password (1Password)
-# - com.raycast.macos (Raycast)
-# - cc.ffitch.shottr (Shottr)
-# - com.jordanbaird.Ice (Ice)
+
+# Apps that get a workspace to themselves, opened edge-to-edge.
+# Bundle IDs come from `aerospace list-apps`.
+[[on-window-detected]]
+    if = 'test %{app-bundle-id} = com.anthropic.claudefordesktop'
+    run = ['move-node-to-workspace C', 'fullscreen on --no-outer-gaps']
+
+[[on-window-detected]]
+    if = 'test %{app-bundle-id} = org.gnu.Emacs'
+    run = ['move-node-to-workspace E', 'fullscreen on --no-outer-gaps']
+
+[[on-window-detected]]
+    if = 'test %{app-bundle-id} = com.mitchellh.ghostty'
+    run = ['move-node-to-workspace G', 'fullscreen on --no-outer-gaps']
+
+[[on-window-detected]]
+    if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap'
+    run = ['move-node-to-workspace S', 'fullscreen on --no-outer-gaps']
